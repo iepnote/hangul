@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>한글이 야호! — 노래방</title>
+<style>
+@font-face { font-family:'NanumBarunpen'; src:url('폰트/NanumBarunpenR.woff2') format('woff2'); font-weight:400; }
+@font-face { font-family:'NanumBarunpen'; src:url('폰트/NanumBarunpenB.woff2') format('woff2'); font-weight:700 900; }
+@font-face { font-family:'NanumSquare'; src:url('폰트/NanumSquareR.woff2') format('woff2'); font-weight:400; }
+@font-face { font-family:'NanumSquare'; src:url('폰트/NanumSquareB.woff2') format('woff2'); font-weight:700 900; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { width:100%; height:100%; overflow:hidden; background:#1a1423; font-family:'NanumSquare','Malgun Gothic','맑은 고딕',sans-serif; touch-action:pan-x pan-y; }  /* 전자칠판: 핀치·더블탭 확대 차단 */
+/* 곡명·가사 = 나눔바른펜 */
+#tvtitle, .poster li .t, #nextBanner, #lyrics, .syncline, #syncTool textarea { font-family:'NanumBarunpen','Malgun Gothic',sans-serif; }
+button { font-family:inherit; cursor:pointer; border:none; }
+
+/* ── 무대: 1920×1080 고정 설계 + scale ── */
+#stage { position:absolute; width:1920px; height:1080px; left:50%; top:50%; transform-origin:center; overflow:hidden; }
+
+/* CSS 배경(이미지 없을 때 대비) */
+#room { position:absolute; inset:0; background:linear-gradient(#fdf3e0 0%,#fbe8cd 62%,#c8955e 62%,#b07f4c 100%); }
+#room .rug { position:absolute; left:24%; right:24%; top:78%; height:26%; background:radial-gradient(ellipse at center,#e8737f 0%,#d95f6c 60%,transparent 61%); opacity:.55; }
+#bgimg { position:absolute; inset:0; width:100%; height:100%; object-fit:fill; z-index:3; }
+.garland { position:absolute; top:0; left:0; right:0; height:70px; display:flex; justify-content:space-around; z-index:2; }
+.garland i { width:0; height:0; border-left:26px solid transparent; border-right:26px solid transparent; border-top:52px solid var(--c); filter:drop-shadow(0 2px 2px rgba(0,0,0,.15)); }
+.note { position:absolute; font-size:44px; opacity:.5; z-index:1; }
+
+/* ── TV (배경 이미지의 화면 영역에 맞춤) ── */
+#tv { position:absolute; left:482px; top:176px; width:949px; height:556px; border-radius:22px; z-index:5; overflow:hidden; }
+body.nobg #tv { background:#26224a; border:14px solid #fff; box-shadow:0 18px 40px rgba(90,60,20,.35); }
+#video { width:100%; height:100%; object-fit:contain; background:#000; display:none; }
+#ytwrap { position:absolute; inset:0; display:none; background:#000; }
+#ytwrap iframe { width:100%; height:100%; }
+#adCover { position:absolute; inset:0; display:none; z-index:7; background:#1a1432;
+  clip-path:polygon(0 0, 100% 0, 100% calc(100% - 150px), calc(100% - 300px) calc(100% - 150px), calc(100% - 300px) 100%, 0 100%);
+  align-items:center; justify-content:center; flex-direction:column; gap:20px; color:#fff; text-align:center; }
+#adCover .m1 { font-size:46px; font-weight:900; }
+#adCover .m2 { font-size:25px; opacity:.88; line-height:1.6; }
+#ytshield { position:absolute; inset:0; clip-path:polygon(0 0, 100% 0, 100% calc(100% - 150px), calc(100% - 300px) calc(100% - 150px), calc(100% - 300px) 100%, 0 100%); }  /* 오터치 방지 + 우하단은 광고 건너뛰기 누를 수 있게 구멍 */
+#tvidle { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; color:#fff; text-align:center; background:linear-gradient(135deg,#3b3585,#7b5fb0); }
+#tvidle .logo { font-size:72px; font-weight:900; text-shadow:0 4px 0 rgba(0,0,0,.25); }
+#tvidle .logo b1{color:#7ed957}#tvidle .logo b2{color:#ff6b81}#tvidle .logo b3{color:#ffd93d}
+#tvidle .hint { font-size:34px; opacity:.92; line-height:1.5; }
+#tvtitle { position:absolute; left:0; right:0; top:0; padding:12px 24px; font-size:38px; font-weight:800; color:#fff; background:linear-gradient(rgba(0,0,0,.55),transparent); display:none; z-index:6; }
+#tvtitle .stars { color:#ffd93d; margin-left:14px; }
+#progressWrap { position:absolute; left:0; right:0; bottom:0; height:52px; background:rgba(0,0,0,.5); display:none; z-index:9; padding:0 18px; }
+#seekBar { -webkit-appearance:none; appearance:none; width:100%; height:16px; margin:18px 0; border-radius:9px; cursor:pointer;
+  background:linear-gradient(90deg,#ff9f43 var(--sp,0%), rgba(255,255,255,.30) var(--sp,0%)); }
+#seekBar::-webkit-slider-thumb { -webkit-appearance:none; width:38px; height:38px; margin-top:-11px; border-radius:50%; background:#fff; border:5px solid #ff7a1a; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+#seekBar::-moz-range-thumb { width:38px; height:38px; border-radius:50%; background:#fff; border:5px solid #ff7a1a; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+#seekBar::-moz-range-progress { background:#ff9f43; height:16px; border-radius:9px; }
+#overlay { position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:20px; background:rgba(30,25,60,.92); color:#fff; z-index:8; text-align:center; }
+#overlay .big { font-size:220px; font-weight:900; line-height:1; }
+#overlay .msg { font-size:46px; font-weight:800; }
+#overlay .sub { font-size:30px; opacity:.85; }
+
+/* ── 예약 배너 ── */
+#nextBanner { position:absolute; right:462px; top:152px; padding:9px 24px; text-align:center; font-size:25px; font-weight:800; color:#5b3b12; background:#ffe9a8; border:4px solid #f3c14b; border-radius:16px; z-index:7; display:none; box-shadow:0 6px 14px rgba(0,0,0,.18); }
+
+/* ── 가사 띠 (TV 하단 1/5 어두운 띠 위에 가사) ── */
+#lyrics { position:absolute; left:449px; width:1022px; bottom:369px; height:calc(var(--lyr,52px) * 1.5); z-index:6; text-align:center; display:none; align-items:center; justify-content:center; background:rgba(20,14,38,.78); padding:0 100px; }
+#lyrNow { font-weight:900; color:#fff; text-shadow:0 3px 0 #000; font-size:var(--lyr,52px); line-height:1.2; }
+#lyrNow .wrap { position:relative; display:inline-block; white-space:nowrap; }
+#lyrNow .fill { position:absolute; left:0; top:0; height:100%; width:0%; overflow:hidden; color:#ffd93d; white-space:nowrap; }
+#lyrNext { display:none; }
+#lyrSize { position:absolute; left:10px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:6px; opacity:.7; }
+#lyrSize button { width:52px; height:44px; font-size:21px; font-weight:900; border-radius:10px; background:#fff; color:#444; box-shadow:0 3px 0 #bbb; }
+
+/* ── 노래방 기기 (배경 이미지의 분홍 패널에 맞춤) ── */
+#machine { position:absolute; left:476px; top:812px; width:958px; height:180px; border-radius:14px; z-index:5; padding:9px 14px; display:flex; gap:14px; }
+body.nobg #machine { background:linear-gradient(#4a4460,#332e4a); box-shadow:0 12px 26px rgba(60,35,10,.4); }
+#numDisplay { background:#101020; color:#7ed957; border-radius:10px; font-size:30px; font-weight:900; text-align:center; letter-spacing:5px; height:44px; line-height:44px; margin-bottom:6px; font-family:Consolas,monospace; min-width:0; overflow:hidden; }
+#keypadCol { flex:1; display:flex; flex-direction:column; }
+#keypad { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:1fr 1fr; gap:7px; flex:1; }
+#keypad button, #funcPad button { font-size:24px; font-weight:900; border-radius:10px; background:#f5f0ff; color:#333; box-shadow:0 3px 0 #b9aed4; }
+#keypad button:active, #funcPad button:active { transform:translateY(3px); box-shadow:0 1px 0 #b9aed4; }
+#funcPad { flex:.72; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:7px; }
+#funcPad button { font-size:22px; }
+#funcPad .ok { background:#7ed957; color:#1c4a08; }
+#funcPad .res { background:#ffd93d; color:#6b4c00; }
+#funcPad .stp { background:#ff8a8a; color:#6d0f0f; }
+#funcPad .del { background:#ffc6cc; color:#7a1420; }
+#funcPad .nxt { background:#a8d4ff; color:#0f3d70; }
+#funcPad .rnd { background:#dcbcf7; color:#4a1d70; }
+#funcPad .rep { background:#b8e6d8; color:#0f5c4a; }
+#funcPad .rep.on2 { background:#26a69a; color:#fff; outline:3px solid #fff; outline-offset:-3px; }
+/* 고슴도치(선생님 목록) 클릭 영역 */
+#teacherBtn { position:absolute; z-index:8; cursor:pointer; border-radius:18px; }
+#teacherBtn.active { outline:5px solid #7e57c2; outline-offset:2px; background:rgba(126,87,194,.14); }
+/* 동영상 전체화면 모드(재생 시 화면 가득 — 브라우저 전체화면 ⛶ 과 다름) */
+body.vfull #tv { left:0; top:0; width:1920px; height:1080px; border-radius:0; z-index:15; }
+body.vfull #lyrics { left:0; width:1920px; bottom:0; height:calc(var(--lyr,52px) * 2.45); z-index:16; padding:0 120px; }
+body.vfull #lyrNow { font-size:calc(var(--lyr,52px) * 1.7); }  /* 전체화면 = 화면 커진 만큼 가사도 비례 확대 */
+body.vfull #nextBanner { z-index:16; }
+#logo { position:absolute; left:214px; top:905px; height:52px; z-index:4; }
+#catCol { flex:1.42; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:1fr 1fr; gap:6px; }
+#catCol button { border-radius:11px; font-size:20px; font-weight:900; color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.3); box-shadow:0 3px 0 rgba(0,0,0,.3); line-height:1.05; padding-top:1px; }
+#catCol button small { font-size:18px; font-weight:700; display:block; opacity:.92; margin-top:.5em; }
+#catCol button .ci { display:inline-block; width:30px; font-style:normal; text-align:left; }
+#catCol button.active { outline:5px solid #fff; outline-offset:-5px; }
+#catCol button:active { transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.3); }
+.cat-낱말1{background:#ff6b81}.cat-낱말2{background:#ff9142}.cat-낱말3{background:#e0a516}.cat-받침1{background:#51b356}.cat-받침2{background:#2aa198}.cat-받침3{background:#6b9e2f}.cat-겹글자1{background:#4f9df7}.cat-겹글자2{background:#7e6fd6}.cat-우리반{background:#7e57c2}
+
+/* ── 포스터 (배경 이미지의 액자 4개에 맞춤: 좌2=인기곡, 우2=영역 목록) ── */
+.poster { position:absolute; z-index:4; padding:6px 8px; display:flex; flex-direction:column; overflow:hidden; }
+body.nobg .poster { background:#fffdf5; border:8px solid #fff; border-radius:12px; box-shadow:0 10px 24px rgba(90,60,20,.25); }
+#pop1 { left:176px; top:188px; width:206px; height:524px; padding-left:16px; }
+#cat1 { left:1514px; top:188px; width:238px; height:524px; padding-left:4px; }
+#pop2, #cat2 { display:none; }
+.poster h2 { text-align:center; font-size:23px; padding:2px 0 7px; border-bottom:3px dotted #e3d5b8; margin-bottom:5px; white-space:nowrap; overflow:hidden; }
+#pop1 h2 { color:#c0392b; }
+.poster ol { list-style:none; overflow:hidden; flex:1; }
+.poster li { display:flex; align-items:center; gap:6px; padding:1px 4px; border-radius:9px; font-size:20px; font-weight:700; color:#4a3b25; }
+.poster li.avail { cursor:pointer; }
+.poster li.avail:hover { background:#fdeecd; }
+.poster li.na { opacity:.38; }
+.poster li .no { min-width:36px; height:27px; line-height:27px; text-align:center; border-radius:8px; color:#fff; font-size:16px; font-weight:900; flex:none; }
+.poster li .t { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.poster li .st { display:none; }  /* 한글이야호: 난이도 별 없음 */
+.poster li .cnt { font-size:15px; color:#a08a60; flex:none; }
+.poster li.playing { background:#ffe9a8; outline:3px solid #f3c14b; }
+
+/* ── 상단 버튼 ── */
+#topBtns { position:absolute; top:14px; right:18px; z-index:20; display:flex; gap:14px; }
+#topBtns button { width:74px; height:74px; border-radius:20px; font-size:36px; background:rgba(255,255,255,.92); box-shadow:0 4px 0 rgba(0,0,0,.15); }
+
+/* ── 모달 공통 ── */
+.modal { position:absolute; inset:0; z-index:50; background:rgba(20,15,40,.75); display:none; align-items:center; justify-content:center; }
+.modal .box { background:#fff; border-radius:26px; width:1060px; max-height:960px; padding:36px 44px; overflow-y:auto; }
+.modal h2 { font-size:40px; margin-bottom:22px; color:#3b3585; }
+.modal h3 { font-size:29px; margin:26px 0 10px; color:#555; border-top:3px solid #eee; padding-top:20px; }
+.modal .row { display:flex; align-items:center; gap:18px; margin:10px 0; font-size:27px; flex-wrap:wrap; }
+.modal input[type=range] { flex:1; height:44px; }
+.modal .val { min-width:80px; text-align:right; font-weight:800; color:#3b3585; }
+.chip { padding:12px 26px; border-radius:14px; font-size:27px; font-weight:800; background:#eee; color:#444; }
+.chip.on { background:#3b3585; color:#fff; }
+.big-close { display:block; margin:28px auto 0; padding:16px 70px; font-size:30px; font-weight:900; background:#3b3585; color:#fff; border-radius:16px; }
+.modal input[type=text], .modal input[type=number], .modal select { font-size:26px; padding:8px 12px; border:2px solid #ccc; border-radius:10px; }
+.songrow { display:flex; gap:10px; align-items:center; font-size:24px; padding:6px 4px; border-bottom:1px solid #f0f0f0; cursor:pointer; }
+.songrow:hover { background:#f5f3ff; }
+.songrow .no { min-width:52px; font-weight:900; color:#3b3585; }
+.songrow .fn { color:#999; font-size:20px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.songrow button { padding:6px 14px; border-radius:10px; font-size:21px; font-weight:700; background:#eee; }
+.songrow button.warn { background:#ffb3ba; }
+
+/* ── 싱크 도구 ── */
+#syncTool .box { width:1500px; max-height:1000px; }
+#syncArea { display:flex; gap:26px; }
+#syncLeft { flex:1; }
+#syncLeft video { width:100%; border-radius:14px; background:#000; }
+#syncYt { width:100%; aspect-ratio:16/9; background:#000; border-radius:14px; overflow:hidden; }
+#syncYt iframe { width:100%; height:100%; }
+#syncLines { flex:1; max-height:640px; overflow-y:auto; border:2px solid #eee; border-radius:12px; padding:8px; }
+.syncline { display:flex; gap:8px; align-items:center; padding:6px 8px; font-size:25px; border-radius:8px; }
+.syncline.cur { background:#ffe9a8; font-weight:800; }
+.syncline .tm { min-width:88px; color:#3b3585; font-weight:800; font-family:Consolas,monospace; font-size:22px; }
+.syncline .nudge { display:flex; gap:4px; }
+.syncline .nudge button { padding:2px 8px; font-size:18px; background:#eee; border-radius:6px; }
+#tapBtn { width:100%; padding:26px 0; margin-top:14px; font-size:40px; font-weight:900; background:#ff6b81; color:#fff; border-radius:18px; box-shadow:0 6px 0 #c04b5e; }
+#tapBtn:active { transform:translateY(4px); box-shadow:0 2px 0 #c04b5e; }
+#syncTool textarea { width:100%; height:560px; font-size:25px; padding:14px; border:2px solid #ccc; border-radius:12px; line-height:1.6; }
+.toolbtns { display:flex; gap:14px; margin-top:18px; justify-content:center; flex-wrap:wrap; }
+.toolbtns button { padding:14px 34px; font-size:27px; font-weight:800; border-radius:14px; background:#eee; }
+.toolbtns .primary { background:#3b3585; color:#fff; }
+
+/* ── 인쇄용 가사집 (A4 세로) ── */
+#printSheet { display:none; }
+#printSheet[data-cat="낱말1"]{--pc:#ff6b81} #printSheet[data-cat="낱말2"]{--pc:#ff9142} #printSheet[data-cat="낱말3"]{--pc:#e0a516} #printSheet[data-cat="받침1"]{--pc:#51b356} #printSheet[data-cat="받침2"]{--pc:#2aa198} #printSheet[data-cat="받침3"]{--pc:#6b9e2f} #printSheet[data-cat="겹글자1"]{--pc:#4f9df7} #printSheet[data-cat="겹글자2"]{--pc:#7e6fd6}
+#printSheet[data-cat="우리반"]{--pc:#7e57c2}
+@page { size: A4 portrait; margin: 0; }
+body.printing { overflow:visible; background:#fff; }
+body.printing #stage { display:none !important; }
+body.printing #printSheet { display:block; position:relative; width:210mm; height:296mm; padding:20mm 18mm; font-family:'NanumBarunpen','Malgun Gothic',sans-serif; overflow:hidden; background:#fff; }
+body.printing #psBg { position:absolute; left:0; top:0; width:210mm; height:296mm; z-index:0; }
+body.printing #psFrame { position:absolute; inset:7mm; border:2.5mm solid var(--pc,#f0a500); border-radius:8mm; z-index:0; }
+body.printing #psTitle { position:relative; z-index:1; text-align:center; font-size:40pt; font-weight:900; color:#3a3a3a; margin-top:6mm; }  /* 배경 리본 중심에 — 영역별 리본 높이 보정 */
+body.printing #printSheet[data-cat="마음"] #psTitle { margin-top:-5mm; }
+body.printing #printSheet[data-cat="동물"] #psTitle { margin-top:0mm; }
+body.printing #printSheet[data-cat="신남"] #psTitle { margin-top:-2mm; }
+body.printing #printSheet[data-cat="자연"] #psTitle { margin-top:6mm; }
+body.printing #psSub { position:relative; z-index:1; text-align:center; font-size:13pt; font-weight:700; color:var(--pc,#888); margin:12mm 0 6mm; }
+body.printing #psLines { position:relative; z-index:1; list-style:none; text-align:center; font-weight:700; color:#333; line-height:1.6; padding:0 10mm; }
+body.printing #psLines.two { columns:2; column-gap:10mm; text-align:left; }
+body.printing #psSym { position:absolute; left:0; right:0; bottom:26mm; display:flex; justify-content:center; gap:8mm; z-index:1; }
+body.printing #psSym .card { width:26mm; text-align:center; background:rgba(255,255,255,.88); border:1.2mm solid var(--pc,#f0a500); border-radius:4mm; padding:2mm 2mm 1.5mm; }
+body.printing #psSym .card img { width:100%; display:block; }
+body.printing #psSym .card div { font-size:11pt; font-weight:800; color:#333; margin-top:1mm; }
+body.printing #psCredit { position:absolute; left:0; right:0; bottom:3.5mm; text-align:center; font-size:6.5pt; color:#9a9a9a; z-index:1; }
+@media print {
+  html, body { width:auto; height:auto; overflow:visible; }
+}
+
+/* 차분 모드 */
+body.calm .garland, body.calm .note, body.calm #room .rug { display:none; }
+body.calm #tvidle { background:#3b3585; }
+@keyframes clap { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+#overlay .big.clap { animation:clap .7s ease infinite; }
+body.calm #overlay .big.clap { animation:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="room">
+    <div class="garland">
+      <i style="--c:#ff6b81"></i><i style="--c:#ffd93d"></i><i style="--c:#7ed957"></i><i style="--c:#4f9df7"></i><i style="--c:#b57edc"></i><i style="--c:#ff9f43"></i><i style="--c:#ff6b81"></i><i style="--c:#4f9df7"></i>
+    </div>
+    <span class="note" style="left:26%;top:12%">🎵</span>
+    <span class="note" style="right:26%;top:9%">🎶</span>
+    <div class="rug"></div>
+  </div>
+  <img id="bgimg" src="이미지/배경.png" onerror="this.style.display='none';document.body.classList.add('nobg')">
+
+  <div id="tv">
+    <div id="tvidle">
+      <div class="logo">한글이 <b3>야</b3><b1>호</b1><b2>!</b2></div>
+      <div class="hint">🎬 보고 싶은 <b style="color:#7ed957">영상</b>을 눌러요<br>포스터 제목이나 아래 단계 버튼을 눌러요</div>
+    </div>
+    <video id="video" playsinline></video>
+    <div id="ytwrap"><div id="ytdiv"></div><div id="ytshield"></div></div>
+    <div id="tvtitle"></div>
+    <div id="progressWrap"><input type="range" id="seekBar" min="0" max="1000" value="0"></div>
+    <div id="overlay"></div>
+    <div id="adCover"><div class="m1">📺 광고가 나오고 있어요</div><div class="m2">조금만 기다려요!<br>「건너뛰기」 단추가 나오면 오른쪽 아래 ↘ 에서 눌러요</div></div>
+  </div>
+
+  <div id="nextBanner"></div>
+
+  <div id="lyrics">
+    <div id="lyrNow"></div>
+    <div id="lyrNext"></div>
+    <div id="lyrSize"><button onclick="lyrSize(6)">A+</button><button onclick="lyrSize(-6)">A−</button></div>
+  </div>
+
+  <div id="machine">
+    <div id="catCol">
+      <button class="cat-낱말1" onclick="showCat('낱말1')"><em class="ci">🍎</em>낱말①<small>1~12</small></button>
+      <button class="cat-낱말2" onclick="showCat('낱말2')"><em class="ci">🍊</em>낱말②<small>13~24</small></button>
+      <button class="cat-낱말3" onclick="showCat('낱말3')"><em class="ci">🍇</em>낱말③<small>25~36</small></button>
+      <button class="cat-받침1" onclick="showCat('받침1')"><em class="ci">🌱</em>받침①<small>37~48</small></button>
+      <button class="cat-받침2" onclick="showCat('받침2')"><em class="ci">🍀</em>받침②<small>49~60</small></button>
+      <button class="cat-받침3" onclick="showCat('받침3')"><em class="ci">🌳</em>받침③<small>61~72</small></button>
+      <button class="cat-겹글자1" onclick="showCat('겹글자1')"><em class="ci">⭐</em>겹글①<small>73~84</small></button>
+      <button class="cat-겹글자2" onclick="showCat('겹글자2')"><em class="ci">🌈</em>겹글②<small>85~94</small></button>
+    </div>
+    <div id="numDisplay" style="display:none">&nbsp;</div>
+    <div id="funcPad">
+      <button class="del" onclick="window.open('https://iepnote.github.io/tesis-apps/gogogo/','_blank')">노래방</button><button class="res" onclick="keyCancelReserve()">예약취소</button><button class="rep" id="repeatBtn" onclick="keyRepeat()">반복</button>
+      <button class="ok" id="playBtn" onclick="keyPlayPause()">▶시작</button><button class="nxt" onclick="keyNext()">다음</button><button class="rnd" onclick="keyRandom()">랜덤</button>
+    </div>
+  </div>
+
+  <div class="poster" id="pop1"><h2>🎉 야호!</h2><ol></ol></div>
+  <div class="poster" id="pop2"><ol></ol></div>
+  <div class="poster" id="cat1"><h2 id="catTitle">노래 목록</h2><ol></ol></div>
+  <div class="poster" id="cat2"><ol></ol></div>
+
+  <img id="logo" src="이미지/Light_color 정방형 로고.png" alt="서울경인특수학급교사연구회" onerror="this.style.display='none'">
+  <div id="teacherBtn" onclick="showCat('우리반')" title="우리반 영상" style="left:1700px;top:645px;width:150px;height:150px"></div>
+
+  <div id="topBtns">
+    <button onclick="stopSong()" title="정지">⏹</button>
+    <button onclick="toggleFS()" title="전체화면">⛶</button>
+    <button onclick="openEdit()" title="편집(선생님)">📝</button>
+    <button onclick="openSettings()" title="설정">⚙️</button>
+  </div>
+
+  <!-- 설정 모달 -->
+  <div class="modal" id="settings">
+    <div class="box">
+      <h2>⚙️ 설정 <span style="font-size:20px;color:#999;font-weight:400">한글이 야호! v2 온라인판 (2026-07-18)</span></h2>
+      <div class="row"><span>재생 속도</span>
+        <button class="chip spd" data-v="0.8" onclick="setSpeed(0.8)">천천히 (0.8)</button>
+        <button class="chip spd" data-v="0.9" onclick="setSpeed(0.9)">조금 천천히 (0.9)</button>
+        <button class="chip spd" data-v="1" onclick="setSpeed(1)">보통 (1.0)</button>
+      </div>
+      <div class="row"><span>소리 크기</span><input type="range" id="volume" min="0" max="100" oninput="setVol()"><span class="val" id="volVal"></span></div>
+      <div class="row"><span>최대 음량 제한</span><input type="range" id="volCap" min="10" max="100" oninput="setVol()"><span class="val" id="capVal"></span></div>
+      <div class="row"><span>차분 모드 (반짝임·효과음 끄기)</span><button class="chip" id="calmBtn" onclick="toggleCalm()">꺼짐</button></div>
+      <div class="row"><span>동영상 크게 보기 (재생 시 화면 가득)</span><button class="chip" id="vfullBtn" onclick="toggleVideoFull()">꺼짐</button></div>
+      <div class="row"><span>가사 크기</span><input type="range" id="lyrRange" min="40" max="130" oninput="lyrSizeSet(+this.value)"><span class="val" id="lyrVal"></span></div>
+
+      <h3>🎼 가사 싱크 만들기 / 고치기</h3>
+      <div class="row">
+        <select id="syncSongSel"></select>
+        <button class="chip on" onclick="openSync()">싱크 도구 열기</button>
+      </div>
+      <div class="row" style="font-size:22px;color:#888">노래를 들으며 가사 줄이 시작될 때마다 <b>탭</b> 버튼(또는 스페이스바)을 누르면 저장됩니다. 유튜브 곡도 됩니다.</div>
+
+      <h3>💾 데이터</h3>
+      <div class="row">
+        <button class="chip" onclick="exportData()">내보내기 (싱크·곡·설정)</button>
+        <label class="chip" style="cursor:pointer">가져오기<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+        <button class="chip" onclick="resetCounts()">야호! 횟수 초기화</button>
+      </div>
+      <button class="big-close" onclick="closeModal('settings')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 편집(선생님용 곡 관리) 모달 -->
+  <div class="modal" id="editor">
+    <div class="box">
+      <h2>📝 영상 편집 <span style="font-size:19px;color:#999;font-weight:400">영상 추가·수정·삭제 · 분류(낱말·받침·겹글자·우리반) · 구간 지정</span></h2>
+      <div id="songAdmin"></div>
+      <div class="row" style="margin-top:14px">
+        <input type="number" id="addNo" placeholder="번호" style="width:110px">
+        <input type="text" id="addTitle" placeholder="영상 제목" style="width:250px">
+        <select id="addCat"><option>낱말1</option><option>낱말2</option><option>낱말3</option><option>받침1</option><option>받침2</option><option>받침3</option><option>겹글자1</option><option>겹글자2</option><option>우리반</option></select>
+        <input type="text" id="addStart" placeholder="구간 시작(예 1:30)" style="width:150px">
+        <input type="text" id="addEnd" placeholder="구간 끝(예 3:00)" style="width:150px">
+        <input type="text" id="addFile" placeholder="파일명 또는 유튜브 링크" style="width:330px">
+        <button class="chip on" onclick="addSong()">추가 / 수정</button>
+      </div>
+      <div class="row" style="font-size:22px;color:#888;margin:4px 0">목록에서 제목을 누르면 여기로 불러와 <b>수정</b>할 수 있어요.</div>
+      <div class="row" style="font-size:22px;color:#888;margin:4px 0"><b>우리반</b>으로 분류한 영상은 홈 화면 오른쪽 아래 <b>팬더</b>를 누르면 '우리반' 목록에 나와요.</div>
+      <div class="row" style="font-size:22px;color:#888;margin:4px 0">구간(시작~끝)을 넣으면 그 부분만 재생돼요. (같은 번호로 추가하면 덮어씀)</div>
+      <button class="big-close" onclick="closeModal('editor')">닫기</button>
+    </div>
+  </div>
+
+  <!-- 싱크 도구 -->
+  <div class="modal" id="syncTool">
+    <div class="box">
+      <h2 id="syncTitle">🎼 가사 싱크</h2>
+      <div id="syncStep1">
+        <div class="row" style="font-size:24px;color:#666">한 줄에 가사 한 줄씩 적어주세요. (화면에 한 번에 보여줄 단위)</div>
+        <textarea id="syncText"></textarea>
+        <div class="toolbtns">
+          <button class="primary" onclick="syncToStep2()">다음 → 탭 싱크 시작</button>
+          <button onclick="closeModal('syncTool')">취소</button>
+        </div>
+      </div>
+      <div id="syncStep2" style="display:none">
+        <div id="syncArea">
+          <div id="syncLeft">
+            <video id="syncVideo" playsinline></video>
+            <div id="syncYt" style="display:none"><div id="syncYtDiv"></div></div>
+            <button id="tapBtn" onclick="tap()">👆 탭! (스페이스바)</button>
+          </div>
+          <div id="syncLines"></div>
+        </div>
+        <div class="toolbtns">
+          <button onclick="syncRestart()">⏮ 처음부터 다시</button>
+          <button class="primary" onclick="syncSave()">💾 저장</button>
+          <button onclick="closeModal('syncTool')">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="printSheet">
+  <img id="psBg" alt="">
+  <div id="psFrame"></div>
+  <div id="psTitle"></div>
+  <div id="psSub"></div>
+  <ol id="psLines"></ol>
+  <div id="psSym"></div>
+  <div id="psCredit">그림상징: ARASAAC (arasaac.org) · CC BY-NC-SA · ⓒ Gobierno de Aragón</div>
+</div>
+
+<script>
+/* ══════════ 곡 목록 ══════════ */
+const CATS = { '낱말1':'낱말 1단계', '낱말2':'낱말 2단계', '낱말3':'낱말 3단계', '받침1':'받침 1단계', '받침2':'받침 2단계', '받침3':'받침 3단계', '겹글자1':'겹글자 1단계', '겹글자2':'겹글자 2단계', '우리반':'우리반 영상' };
+const SONGS = [
+ {no:1, t:'아이', c:'낱말1', s:1, f:'https://youtu.be/OpukrvJ14mE'},
+ {no:2, t:'고기', c:'낱말1', s:1, f:'https://youtu.be/igOhRU47ZbE'},
+ {no:3, t:'누나 ①', c:'낱말1', s:1, f:'https://youtu.be/bfjW4tVLGSU'},
+ {no:4, t:'누나 ②', c:'낱말1', s:1, f:'https://youtu.be/fdxZby35L5k'},
+ {no:5, t:'누구야 ①', c:'낱말1', s:1, f:'https://youtu.be/lzS4q41syzU'},
+ {no:6, t:'누구야 ②', c:'낱말1', s:1, f:'https://youtu.be/1WPM8sc327c'},
+ {no:7, t:'너도 나도 ①', c:'낱말1', s:1, f:'https://youtu.be/AEFhMfzypLA'},
+ {no:8, t:'너도 나도 ②', c:'낱말1', s:1, f:'https://youtu.be/rD84fiUlYIo'},
+ {no:9, t:'라디오 ①', c:'낱말1', s:1, f:'https://youtu.be/nrpnsIOFU3Q'},
+ {no:10, t:'라디오 ②', c:'낱말1', s:1, f:'https://youtu.be/fj87tvDFeWw'},
+ {no:11, t:'마녀 가 ①', c:'낱말1', s:1, f:'https://youtu.be/JmyeWhylLIo'},
+ {no:12, t:'마녀 가 ②', c:'낱말1', s:1, f:'https://youtu.be/Vu6GRy_pywA'},
+ {no:13, t:'두 마리 ①', c:'낱말2', s:1, f:'https://youtu.be/R5piSZIyo9M'},
+ {no:14, t:'두 마리 ②', c:'낱말2', s:1, f:'https://youtu.be/pe3DVt_UP50'},
+ {no:15, t:'바구니 ①', c:'낱말2', s:1, f:'https://youtu.be/hkhBysOZSaA'},
+ {no:16, t:'바구니 ②', c:'낱말2', s:1, f:'https://youtu.be/u9jikaSzwKs'},
+ {no:17, t:'수리 수리 마수리 ①', c:'낱말2', s:1, f:'https://youtu.be/MHrFSBXdDsA'},
+ {no:18, t:'수리 수리 마수리 ②', c:'낱말2', s:1, f:'https://youtu.be/E89DxfQv0iE'},
+ {no:19, t:'이랴 이랴 ①', c:'낱말2', s:1, f:'https://youtu.be/KX6jJpJvWUg'},
+ {no:20, t:'이랴 이랴 ②', c:'낱말2', s:1, f:'https://youtu.be/3wgtSoPlEUg'},
+ {no:21, t:'주머니 ①', c:'낱말2', s:1, f:'https://youtu.be/71tERfrI-8w'},
+ {no:22, t:'주머니 ②', c:'낱말2', s:1, f:'https://youtu.be/j8ZTXr_mRVw'},
+ {no:23, t:'우주버스 ①', c:'낱말2', s:1, f:'https://youtu.be/if3ruRJV1dA'},
+ {no:24, t:'우주버스 ②', c:'낱말2', s:1, f:'https://youtu.be/y7pDmQzEoSM'},
+ {no:25, t:'차차차 ①', c:'낱말3', s:1, f:'https://youtu.be/JDKBl59NKds'},
+ {no:26, t:'차차차 ②', c:'낱말3', s:1, f:'https://youtu.be/UewQSYbA2Pg'},
+ {no:27, t:'키커 쿠키 ①', c:'낱말3', s:1, f:'https://youtu.be/kKu8ZoxCoVc'},
+ {no:28, t:'키커 쿠키 ②', c:'낱말3', s:1, f:'https://youtu.be/K0k64qVa_MU'},
+ {no:29, t:'토마토 ①', c:'낱말3', s:1, f:'https://youtu.be/C2mh_nqSl7E'},
+ {no:30, t:'토마토 ②', c:'낱말3', s:1, f:'https://youtu.be/X22yObXO8qI'},
+ {no:31, t:'피아노 ①', c:'낱말3', s:1, f:'https://youtu.be/B91x5BYrc8I'},
+ {no:32, t:'피아노 ②', c:'낱말3', s:1, f:'https://youtu.be/cO0lhrMDsps'},
+ {no:33, t:'하하 호호 ①', c:'낱말3', s:1, f:'https://youtu.be/liGdRSMVYZg'},
+ {no:34, t:'하하 호호 ②', c:'낱말3', s:1, f:'https://youtu.be/IKitHS3GOBA'},
+ {no:35, t:'치카푸카하 ①', c:'낱말3', s:1, f:'https://youtu.be/2PRKVI_SaG0'},
+ {no:36, t:'치카푸카하 ②', c:'낱말3', s:1, f:'https://youtu.be/OywK4vJVANI'},
+ {no:37, t:'공 ①', c:'받침1', s:1, f:'https://youtu.be/Ro4fd48uzoM'},
+ {no:38, t:'공 ②', c:'받침1', s:1, f:'https://youtu.be/kqNFD4eKors'},
+ {no:39, t:'콩콩콩 쿵쿵쿵 ①', c:'받침1', s:1, f:'https://youtu.be/_z7E1i88pX8'},
+ {no:40, t:'콩콩콩 쿵쿵쿵 ②', c:'받침1', s:1, f:'https://youtu.be/oIU1NKM7S7w'},
+ {no:41, t:'퐁당 퐁당 ①', c:'받침1', s:1, f:'https://youtu.be/PXq_BQmzAZg'},
+ {no:42, t:'퐁당 퐁당 ②', c:'받침1', s:1, f:'https://youtu.be/sGZRfQKvylM'},
+ {no:43, t:'몸 ①', c:'받침1', s:1, f:'https://youtu.be/JAukkCjq_Oc'},
+ {no:44, t:'몸 ②', c:'받침1', s:1, f:'https://youtu.be/PI61JOW4fu8'},
+ {no:45, t:'엄마 ①', c:'받침1', s:1, f:'https://youtu.be/wMrYkJ5VCZc'},
+ {no:46, t:'엄마 ②', c:'받침1', s:1, f:'https://youtu.be/ppoTjp8zsoU'},
+ {no:47, t:'그림자 ①', c:'받침1', s:1, f:'https://youtu.be/SQNoEptKqdA'},
+ {no:48, t:'그림자 ②', c:'받침1', s:1, f:'https://youtu.be/9xeRrlCc1LE'},
+ {no:49, t:'신비한 손 ①', c:'받침2', s:1, f:'https://youtu.be/0DOvnyTYmiY'},
+ {no:50, t:'신비한 손 ②', c:'받침2', s:1, f:'https://youtu.be/46WHUfZ-DKE'},
+ {no:51, t:'편지요 편지 ①', c:'받침2', s:1, f:'https://youtu.be/jL7n_0JrpV8'},
+ {no:52, t:'편지요 편지 ②', c:'받침2', s:1, f:'https://youtu.be/g9iFgEHudjM'},
+ {no:53, t:'눈사람 자전거 ①', c:'받침2', s:1, f:'https://youtu.be/mjaXXhb6tMY'},
+ {no:54, t:'눈사람 자전거 ②', c:'받침2', s:1, f:'https://youtu.be/BrP5qRwqo7g'},
+ {no:55, t:'복 주는 북 ①', c:'받침2', s:1, f:'https://youtu.be/cnUssRnev4c'},
+ {no:56, t:'복 주는 북 ②', c:'받침2', s:1, f:'https://youtu.be/zuO3fusAaMQ'},
+ {no:57, t:'수박 박수 ①', c:'받침2', s:1, f:'https://youtu.be/uaGkjlM5odI'},
+ {no:58, t:'수박 박수 ②', c:'받침2', s:1, f:'https://youtu.be/kWYyjQwSqcs'},
+ {no:59, t:'미운 말 고운 말 ①', c:'받침2', s:1, f:'https://youtu.be/a5ZxfZfLTCI'},
+ {no:60, t:'미운 말 고운 말 ②', c:'받침2', s:1, f:'https://youtu.be/5EwryyJoLm4'},
+ {no:61, t:'얼굴 ①', c:'받침3', s:1, f:'https://youtu.be/qv0S3T7PEOo'},
+ {no:62, t:'얼굴 ②', c:'받침3', s:1, f:'https://youtu.be/2iN8HRJRmXg'},
+ {no:63, t:'바바밥 밥집 ①', c:'받침3', s:1, f:'https://youtu.be/Q4tJK-qjt0E'},
+ {no:64, t:'바바밥 밥집 ②', c:'받침3', s:1, f:'https://youtu.be/Ysy8caBLWC8'},
+ {no:65, t:'손톱 발톱 ①', c:'받침3', s:1, f:'https://youtu.be/g6_E_NMy7jM'},
+ {no:66, t:'손톱 발톱 ②', c:'받침3', s:1, f:'https://youtu.be/eQLVqCML3uU'},
+ {no:67, t:'무엇이든 붓 ①', c:'받침3', s:1, f:'https://youtu.be/iTQ-D-6Uuxo'},
+ {no:68, t:'무엇이든 붓 ②', c:'받침3', s:1, f:'https://youtu.be/Z5D4rVInoXQ'},
+ {no:69, t:'멋진 빗자루 ①', c:'받침3', s:1, f:'https://youtu.be/b65HyRPswU4'},
+ {no:70, t:'멋진 빗자루 ②', c:'받침3', s:1, f:'https://youtu.be/y5belKfZwPk'},
+ {no:71, t:'탐험 이야기 ①', c:'받침3', s:1, f:'https://youtu.be/KqJSDZVUJZw'},
+ {no:72, t:'탐험 이야기 ②', c:'받침3', s:1, f:'https://youtu.be/mcgW1Xp1MDY'},
+ {no:73, t:'꼬마야 꼬마야 ①', c:'겹글자1', s:1, f:'https://youtu.be/d5vlI_Dr0jA'},
+ {no:74, t:'꼬마야 꼬마야 ②', c:'겹글자1', s:1, f:'https://youtu.be/078FCCanvpQ'},
+ {no:75, t:'뚝딱뚝딱 딱지 ①', c:'겹글자1', s:1, f:'https://youtu.be/xojT6gXXomE'},
+ {no:76, t:'뚝딱뚝딱 딱지 ②', c:'겹글자1', s:1, f:'https://youtu.be/OBhfdWI-E_k'},
+ {no:77, t:'뿌미는 바쁘다 바빠 ①', c:'겹글자1', s:1, f:'https://youtu.be/mHjUnCecrwc'},
+ {no:78, t:'뿌미는 바쁘다 바빠 ②', c:'겹글자1', s:1, f:'https://youtu.be/epZI5JYEEBo'},
+ {no:79, t:'쌍둥이 씨름 ①', c:'겹글자1', s:1, f:'https://youtu.be/B1yY7KKfuU4'},
+ {no:80, t:'쌍둥이 씨름 ②', c:'겹글자1', s:1, f:'https://youtu.be/s-dMGLIV9X8'},
+ {no:81, t:'짝짝 짝짜꿍 ①', c:'겹글자1', s:1, f:'https://youtu.be/O-HvopSmMOc'},
+ {no:82, t:'짝짝 짝짜꿍 ②', c:'겹글자1', s:1, f:'https://youtu.be/5mo9VrevyGs'},
+ {no:83, t:'들썩들썩 꿈나라 ①', c:'겹글자1', s:1, f:'https://youtu.be/1SCZLIPRpZI'},
+ {no:84, t:'들썩들썩 꿈나라 ②', c:'겹글자1', s:1, f:'https://youtu.be/ngbRtzq-2hE'},
+ {no:85, t:'멍멍 개, 따각따각 게 ①', c:'겹글자2', s:1, f:'https://youtu.be/Utw3F5W9mLo'},
+ {no:86, t:'멍멍 개, 따각따각 게 ②', c:'겹글자2', s:1, f:'https://youtu.be/6vDDcF9w-XM'},
+ {no:87, t:'게으름뱅이 개미 ①', c:'겹글자2', s:1, f:'https://youtu.be/yTJy90ssWF0'},
+ {no:88, t:'사과 따는 원숭이 ①', c:'겹글자2', s:1, f:'https://youtu.be/bdt_K1AuiYo'},
+ {no:89, t:'와, 태권도! ①', c:'겹글자2', s:1, f:'https://youtu.be/E8I0GNI7zJI'},
+ {no:90, t:'까마귀 의사 ①', c:'겹글자2', s:1, f:'https://youtu.be/AzXjOahif5c'},
+ {no:91, t:'지혜로운 요리사 ①', c:'겹글자2', s:1, f:'https://youtu.be/3ngFerKgy2U'},
+ {no:92, t:'돼지야 왜 그래 ①', c:'겹글자2', s:1, f:'https://youtu.be/XsSirKH_J8Q'},
+ {no:93, t:'꾀꼬리와 왜가리 ①', c:'겹글자2', s:1, f:'https://youtu.be/QvxhCiJDAi0'},
+ {no:94, t:'한글아 놀자 ①', c:'겹글자2', s:1, f:'https://youtu.be/c9tgroQlWh8'},
+];
+
+/* 곡별 핵심 낱말 그림상징 (가사집 인쇄용, ARASAAC) */
+const SYMBOLS = {}; // 그림상징 보류 — 다시 켜려면 {1:['안녕','친구'],...} 형식으로 채우기 (이미지/상징/ 폴더에 ARASAAC 상징 보관됨)
+
+/* Whisper 초벌 싱크 (탭 싱크로 저장하면 그쪽이 우선) */
+const SYNC_BUILTIN = {}
+
+/* ══════════ 저장소 ══════════ */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('hgy_'+k); return v ? JSON.parse(v) : d; } catch(e) { return d; } },
+  set(k, v) { try { localStorage.setItem('hgy_'+k, JSON.stringify(v)); } catch(e) {} persistAll(); }
+};
+const ONLINE = true; // 온라인판(GitHub Pages)
+/* 서버 실행(노래방 시작.bat) 중이면 폴더의 data/karaoke-data.json 에도 자동 저장 —
+   버전 교체·PC 이동·zip 배포에도 곡/싱크/설정이 유지됨 */
+let saveTimer = null;
+function collectData() {
+  const data = { settings, counts, custom, hidden, sync:{} };
+  Object.keys(localStorage).filter(k => k.startsWith('hgy_sync_')).forEach(k => {
+    try { data.sync[k.slice(9)] = JSON.parse(localStorage.getItem(k)); } catch(e) {}
+  });
+  return data;
+}
+function persistAll() {
+  if (ONLINE || location.protocol === 'file:') return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try { fetch('savedata', { method:'POST', body: JSON.stringify(collectData(), null, 1) }).catch(()=>{}); } catch(e) {}
+  }, 800);
+}
+// 접두사 분리(v2) 이전에 쟁반노래방 데이터가 섞인 기기 저장을 1회 청소
+if ((parseInt(localStorage.getItem('hgy_dataver')) || 0) < 2) {
+  Object.keys(localStorage).filter(k => k.startsWith('hgy_')).forEach(k => localStorage.removeItem(k));
+  localStorage.setItem('hgy_dataver', '2');
+}
+let settings = Object.assign({speed:1, vol:80, cap:100, calm:false, lyr:84, videofull:false}, store.get('settings', {}));
+let counts = store.get('counts', {});
+let custom = store.get('custom', []);   // 추가 곡
+let hidden = store.get('hidden', []);   // 숨긴 곡 번호
+
+function allSongs() {
+  const map = new Map();
+  SONGS.forEach(s => map.set(s.no, s));
+  custom.forEach(s => map.set(s.no, s));
+  return [...map.values()].filter(s => !hidden.includes(s.no)).sort((a,b) => a.no-b.no);
+}
+function getSong(no) { return allSongs().find(s => s.no === no); }
+function getSync(no) { return store.get('sync_'+no, null); }               // 재생 표시용: 선생님이 저장한 싱크만
+function getSyncAny(no) { return store.get('sync_'+no, null) || SYNC_BUILTIN[no] || null; } // 싱크 도구 미리채움용(Whisper 초벌 포함)
+const stars = n => '★★★'.slice(0,n) + '☆☆☆'.slice(0,3-n);
+
+/* ══════════ 무대 스케일 ══════════ */
+function fit() {
+  const s = Math.min(innerWidth/1920, innerHeight/1080);
+  document.getElementById('stage').style.transform = `translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+/* ══════════ 효과음 (WebAudio, 차분모드 시 무음) ══════════ */
+let AC;
+function beep(freq, dur, vol) {
+  if (settings.calm) return;
+  try {
+    AC = AC || new AudioContext();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.frequency.value = freq; o.type = 'sine';
+    g.gain.value = (vol||0.15) * (settings.vol/100);
+    o.connect(g); g.connect(AC.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime+dur);
+    o.stop(AC.currentTime+dur);
+  } catch(e) {}
+}
+
+/* ══════════ 재생 흐름 ══════════ */
+const video = document.getElementById('video');
+let playing = null;   // 현재 곡
+let queue = [];       // 예약 목록
+let countTimer = null;
+let repeatMode = 0;   // 반복: 0 꺼짐 / 1 한번 더 / 2 계속
+
+/* ── 영상 소스 3종: 폴더 파일 / 유튜브 링크 / 직접 영상 URL ── */
+const isUrl = f => /^https?:\/\//i.test(f || '');
+function ytIdOf(f) {
+  const m = (f || '').match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+let ytPlayer = null, usingYT = false;
+function hideYtCaptions(pl) { // 유튜브 CC 자막 강제 끔 (영상에 박힌 자막은 못 끔)
+  if (!pl) return;
+  try { pl.unloadModule('captions'); } catch(e) {}
+  try { pl.unloadModule('cc'); } catch(e) {}
+  try { pl.setOption('captions', 'track', {}); } catch(e) {}
+}
+function ytLoad(cb) {
+  if (window.YT && YT.Player) return cb();
+  window.onYouTubeIframeAPIReady = cb;
+  if (!document.getElementById('ytapi')) {
+    const sc = document.createElement('script'); sc.id = 'ytapi'; sc.src = 'https://www.youtube.com/iframe_api';
+    sc.onerror = () => flashDisplay('인터넷 필요');
+    document.head.appendChild(sc);
+  }
+}
+function applyYtSettings() {
+  if (!ytPlayer || !ytPlayer.setVolume) return;
+  ytPlayer.setVolume(Math.min(settings.vol, settings.cap));
+  ytPlayer.setPlaybackRate(settings.speed); // 유튜브는 0.75/1 등 지원 배속에 가장 가까운 값으로 적용됨
+  hideYtCaptions(ytPlayer);
+  ytPlayer.playVideo();
+}
+function ytPlay(videoId, st, en) {
+  document.getElementById('ytwrap').style.display = 'block';
+  ytLoad(() => {
+    if (ytPlayer) { const o = {videoId, startSeconds: st||0}; if (en) o.endSeconds = en; ytPlayer.loadVideoById(o); applyYtSettings(); return; }
+    ytPlayer = new YT.Player('ytdiv', {
+      width:'100%', height:'100%', videoId,
+      playerVars: Object.assign({autoplay:1, controls:0, rel:0, iv_load_policy:3, disablekb:1, fs:0, playsinline:1, cc_load_policy:0, start: st||0}, en ? {end:en} : {}),
+      events: {
+        onReady: applyYtSettings,
+        onStateChange: e => { if (e.data === 1) hideYtCaptions(ytPlayer); if (e.data === 0 && usingYT && playing) praise(); },
+        onError: e => {
+          if (!usingYT || !playing) return;
+          const ov = document.getElementById('overlay');
+          ov.style.display = 'flex';
+          ov.innerHTML = (location.protocol === 'file:')
+            ? '<div class="msg">😢 유튜브 곡은 이렇게 열면 재생할 수 없어요</div><div class="sub">폴더의 <b>「노래방 시작」</b>으로 실행해 주세요 (유튜브 정책)<br>또는 영상을 파일로 받아 영상 폴더에 넣어주세요</div>'
+            : '<div class="msg">😢 이 유튜브 영상은 재생할 수 없어요 (오류 ' + e.data + ')</div><div class="sub">다른 영상 링크로 바꾸거나 파일로 받아 넣어주세요</div>';
+          setTimeout(() => {
+            ov.style.display = 'none';
+            stopMedia(); stopLyrics(); endReset();
+            const nx = queue.shift(); updateBanner();
+            if (nx) startSong(nx);
+          }, 6000);
+        }
+      }
+    });
+  });
+}
+function curTime() { return usingYT ? (ytPlayer && ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0) : video.currentTime; }
+function durTime() { return usingYT ? (ytPlayer && ytPlayer.getDuration ? ytPlayer.getDuration() : 0) : video.duration; }
+let seg = {st:0, en:0};
+function segStart() { return seg.st || 0; }
+function segEnd() { const d = durTime(); return (seg.en && seg.en < d) ? seg.en : d; }
+function clipPct() { const a = segStart(), b = segEnd(); return b > a ? Math.max(0, Math.min(100, (curTime()-a)/(b-a)*100)) : 0; }
+function mediaSeek(sec) { if (usingYT) { if (ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(sec, true); } else video.currentTime = sec; }
+const seekBar = document.getElementById('seekBar');
+let seeking = false;
+function updateSeekUI(pct) { if (!seeking) seekBar.value = Math.round(pct*10); seekBar.style.setProperty('--sp', pct.toFixed(1) + '%'); }
+seekBar.addEventListener('input', () => { seeking = true; seekBar.style.setProperty('--sp', (seekBar.value/10) + '%'); });
+seekBar.addEventListener('change', () => { const a = segStart(), b = segEnd(); if (b > a) mediaSeek(a + (b-a)*seekBar.value/1000); seeking = false; });
+function stopMedia() {
+  setAdCover(false); ytFrozen = 0; ytUnstarted = 0;
+  video.pause(); video.removeAttribute('src'); video.load();
+  if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+  document.getElementById('ytwrap').style.display = 'none';
+  usingYT = false;
+}
+
+function updateBanner() {
+  const b = document.getElementById('nextBanner');
+  if (!queue.length) { b.style.display = 'none'; return; }
+  b.textContent = '⏭ 다음: ' + queue[0].no + '. ' + queue[0].t + (queue.length > 1 ? ' (+' + (queue.length-1) + '곡)' : '');
+  b.style.display = 'block';
+}
+function enqueue(s) { queue.push(s); updateBanner(); }
+function pick(no) {  // 포스터 터치: 재생 중이면 예약, 아니면 바로 시작
+  const s = getSong(no);
+  if (!s) return flashDisplay('없는 번호');
+  if (!s.f) return flashDisplay('준비중이에요');
+  playing ? enqueue(s) : startSong(s);
+}
+
+function startSong(s) {
+  playing = s;
+  applyVideoFull(true);
+  counts[s.no] = (counts[s.no]||0) + 1;
+  store.set('counts', counts);
+  renderPop(); renderCat();
+  document.getElementById('tvidle').style.display = 'none';
+  const tt = document.getElementById('tvtitle');
+  tt.innerHTML = s.no + '. ' + s.t;
+  tt.style.display = 'block';
+  // 카운트다운 3·2·1 — 항상 같은 루틴
+  const ov = document.getElementById('overlay');
+  ov.style.display = 'flex';
+  let n = 3;
+  const tick = () => {
+    if (n > 0) {
+      ov.innerHTML = '<div class="big">' + n + '</div><div class="sub">곧 영상이 시작돼요</div>';
+      beep(600 + n*100, .18);
+      n--; countTimer = setTimeout(tick, 1000);
+    } else {
+      ov.style.display = 'none';
+      countTimer = null;
+      seg = {st: s.st || 0, en: s.en || 0};
+      const ytid = ytIdOf(s.f);
+      if (ytid) {
+        usingYT = true;
+        ytPlay(ytid, seg.st, seg.en);
+      } else {
+        usingYT = false;
+        video.src = isUrl(s.f) ? s.f : '영상/' + s.f;
+        video.style.display = 'block';
+        video.playbackRate = settings.speed;
+        if ('preservesPitch' in video) video.preservesPitch = true;
+        video.volume = Math.min(settings.vol, settings.cap) / 100;
+        video.onloadedmetadata = () => { if (seg.st) video.currentTime = seg.st; };
+        video.play();
+      }
+      resetPauseBtn();
+      document.getElementById('progressWrap').style.display = 'block';
+      startLyrics(s);
+    }
+  };
+  tick();
+}
+
+video.addEventListener('timeupdate', () => {
+  if (video.duration) updateSeekUI(clipPct());
+  if (seg.en && playing && !usingYT && video.currentTime >= seg.en) { video.pause(); praise(); }
+  tickLyrics();
+});
+video.addEventListener('ended', () => praise());
+let ytLastT = 0, ytFrozen = 0, ytUnstarted = 0, adShown = false;
+function setAdCover(on) {
+  if (on === adShown) return;
+  adShown = on;
+  document.getElementById('adCover').style.display = on ? 'flex' : 'none';
+  if (lyrData) document.getElementById('lyrics').style.display = on ? 'none' : 'flex';
+  if (ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(on ? 0 : Math.min(settings.vol, settings.cap)); // 광고 소리 줄임
+}
+setInterval(() => { // 유튜브는 timeupdate가 없어 폴링
+  if (usingYT && playing) {
+    const d = durTime(), t = curTime();
+    if (d) updateSeekUI(clipPct());
+    tickLyrics();
+    // 광고 감지: 실측 결과 광고 중엔 상태가 -1(시작 전)로 유지되고 영상 시간이 0에 멈춤.
+    // ① 재생 지시 후에도 -1이 1.5초 이상 지속 = 프리롤 광고  ② 재생 중(1) 시간 정지 = 미드롤 광고(보조)
+    const st = ytPlayer && ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : 0;
+    if (st === -1) ytUnstarted++; else ytUnstarted = 0;
+    if (st === 1 && Math.abs(t - ytLastT) < 0.05) ytFrozen++; else ytFrozen = 0;
+    ytLastT = t;
+    setAdCover(ytUnstarted >= 5 || ytFrozen >= 4);
+  }
+}, 300);
+
+function praise() {
+  stopLyrics();
+  video.style.display = 'none';
+  const ov = document.getElementById('overlay');
+  ov.style.display = 'flex';
+  ov.innerHTML = '<div class="big clap">👏</div><div class="msg">참 잘했어요!</div><div class="sub">한글이 야호! ⭐⭐⭐</div>';
+  beep(880,.3,.2); setTimeout(() => beep(1100,.4,.2), 250);
+  const repeatSong = (repeatMode && playing) ? playing : null;
+  if (repeatSong && repeatMode === 1) { repeatMode = 0; updateRepeatBtn(); }
+  setTimeout(() => {
+    ov.style.display = 'none';
+    endReset();
+    if (repeatSong) { startSong(repeatSong); return; }
+    const next = queue.shift(); updateBanner();
+    if (next) startSong(next);
+  }, 3500);
+}
+
+function stopSong() {
+  if (countTimer) { clearTimeout(countTimer); countTimer = null; }
+  stopMedia();
+  document.getElementById('overlay').style.display = 'none';
+  queue = []; updateBanner();
+  repeatMode = 0; updateRepeatBtn();
+  stopLyrics(); endReset();
+}
+function keyPlayPause() { // 시작·멈춤 통합: 번호 있으면 재생, 재생 중이면 일시정지/계속
+  if (numBuf) { const s = takeNum(); if (s) (playing ? cutToSong(s) : startSong(s)); return; }
+  if (!playing || countTimer) return;
+  if (usingYT) {
+    if (!ytPlayer || !ytPlayer.getPlayerState) return;
+    (ytPlayer.getPlayerState() === 1) ? ytPlayer.pauseVideo() : ytPlayer.playVideo();
+  } else if (video.paused) video.play();
+  else video.pause();
+  setTimeout(updatePlayBtn, 80);
+}
+function updatePlayBtn() {
+  const b = document.getElementById('playBtn'); if (!b) return;
+  if (!playing) { b.textContent = '▶시작'; return; }
+  const paused = usingYT ? (ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() !== 1) : video.paused;
+  b.textContent = paused ? '▶계속' : '⏸멈춤';
+}
+function resetPauseBtn() { const b = document.getElementById('playBtn'); if (b) b.textContent = playing ? '⏸멈춤' : '▶시작'; }
+function keyRepeat() { // 반복: 0→1(한번더)→2(계속)→0
+  repeatMode = (repeatMode + 1) % 3;
+  updateRepeatBtn();
+  beep(repeatMode ? 900 : 500, .12, .1);
+  flashDisplay(repeatMode === 1 ? '한 번 더 반복' : repeatMode === 2 ? '계속 반복' : '반복 끔');
+}
+function updateRepeatBtn() {
+  const b = document.getElementById('repeatBtn'); if (!b) return;
+  b.textContent = repeatMode === 1 ? '🔂1회' : repeatMode === 2 ? '🔁계속' : '반복';
+  b.classList.toggle('on2', repeatMode > 0);
+}
+function applyVideoFull(on) { document.body.classList.toggle('vfull', !!(on && settings.videofull)); }
+function toggleVideoFull() { settings.videofull = !settings.videofull; store.set('settings', settings); applyVideoFull(!!playing); syncSettingsUI(); }
+function cutToSong(s) {  // 시작 버튼: 재생 중이어도 즉시 전환 (예약 목록은 유지)
+  if (countTimer) { clearTimeout(countTimer); countTimer = null; }
+  stopMedia();
+  document.getElementById('overlay').style.display = 'none';
+  stopLyrics();
+  startSong(s);
+}
+function endReset() {
+  playing = null;
+  applyVideoFull(false);
+  resetPauseBtn();
+  video.style.display = 'none';
+  document.getElementById('ytwrap').style.display = 'none';
+  usingYT = false;
+  document.getElementById('tvtitle').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'none';
+  if (seekBar) { seekBar.value = 0; seekBar.style.setProperty('--sp','0%'); }
+  document.getElementById('tvidle').style.display = 'flex';
+  renderPop(); renderCat();
+}
+
+/* ══════════ 가사 표시 (노래방식 색 채우기) ══════════ */
+let lyrData = null, lyrIdx = -1, fillRaf = null;
+const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function startLyrics(s) {
+  lyrData = getSync(s.no); lyrIdx = -1;
+  const el = document.getElementById('lyrics');
+  if (lyrData && lyrData.lines && lyrData.lines.length) {
+    el.style.display = 'flex';
+    document.getElementById('lyrNow').textContent = '';
+    document.getElementById('lyrNext').textContent = lyrData.lines[0].text;
+    if (!fillRaf) fillLoop();
+  } else el.style.display = 'none';
+}
+function tickLyrics() {
+  if (!lyrData) return;
+  const t = curTime(), L = lyrData.lines;
+  let i = -1;
+  for (let k = 0; k < L.length; k++) if (t >= L[k].start) i = k; else break;
+  if (i !== lyrIdx) {
+    lyrIdx = i;
+    const now = document.getElementById('lyrNow');
+    now.innerHTML = i >= 0 ? '<span class="wrap">' + esc(L[i].text) + '<span class="fill">' + esc(L[i].text) + '</span></span>' : '';
+    // 한 줄 고정: 띠 폭(크기조절 버튼 자리 제외)을 넘으면 그 줄만 자동 축소
+    const w = now.querySelector('.wrap'), maxW = document.getElementById('lyrics').clientWidth - 200;
+    if (w && w.offsetWidth > maxW) w.style.fontSize = Math.floor(maxW / w.offsetWidth * 100) + '%';
+    document.getElementById('lyrNext').textContent = (i+1 < L.length) ? L[i+1].text : '';
+  }
+}
+function fillLoop() {
+  if (lyrData && lyrIdx >= 0) {
+    const L = lyrData.lines, s = L[lyrIdx].start;
+    const rawEnd = (lyrIdx+1 < L.length) ? L[lyrIdx+1].start : (durTime() || s+4);
+    // ponytail: 음절별 시각 데이터 없이 줄 길이 기반 추정(글자당 0.5초 상한) — 간주 앞 줄이 끝까지 느리게 차는 것 방지
+    const chars = L[lyrIdx].text.replace(/\s/g,'').length;
+    const end = Math.min(rawEnd, s + 0.5*chars + 1.2);
+    const p = Math.max(0, Math.min(1, (curTime() - s) / (end - s)));
+    const f = document.querySelector('#lyrNow .fill');
+    if (f) f.style.width = (p*100) + '%';
+  }
+  fillRaf = requestAnimationFrame(fillLoop);
+}
+function stopLyrics() {
+  lyrData = null;
+  document.getElementById('lyrics').style.display = 'none';
+  if (fillRaf) { cancelAnimationFrame(fillRaf); fillRaf = null; }
+}
+function lyrSize(d) { lyrSizeSet(Math.max(40, Math.min(130, settings.lyr + d))); }
+function lyrSizeSet(v) {
+  settings.lyr = v; store.set('settings', settings);
+  document.documentElement.style.setProperty('--lyr', v+'px');
+  const r = document.getElementById('lyrRange'); if (r) { r.value = v; document.getElementById('lyrVal').textContent = v; }
+}
+
+/* ══════════ 번호 입력 ══════════ */
+let numBuf = '';
+const disp = document.getElementById('numDisplay');
+function key(d) { if (numBuf.length < 3) { numBuf += d; disp.textContent = numBuf; beep(700,.08,.08); } }
+function keyDel() { numBuf = numBuf.slice(0,-1); disp.innerHTML = numBuf || '&nbsp;'; }
+function takeNum() {
+  if (!numBuf) return null;
+  const no = parseInt(numBuf); numBuf = ''; disp.innerHTML = '&nbsp;';
+  const s = getSong(no);
+  if (!s) { flashDisplay('없는 번호'); return null; }
+  if (!s.f) { flashDisplay('준비중이에요'); return null; }
+  return s;
+}
+function keyOk() {       // 시작: 즉시 재생 (재생 중이면 바로 전환)
+  const s = takeNum(); if (!s) return;
+  playing ? cutToSong(s) : startSong(s);
+}
+function keyCancelReserve() { // 마지막 예약부터 하나씩 취소
+  if (!queue.length) { beep(300, .15, .1); return; }
+  queue.pop(); updateBanner(); beep(520, .12, .1);
+}
+function keyReserve() {  // 예약: 대기열에 추가 (재생 중이 아니면 바로 시작)
+  const s = takeNum(); if (!s) return;
+  if (playing) { enqueue(s); flashDisplay('예약 완료!'); }
+  else startSong(s);
+}
+function keyNext() {     // 다음: 예약 첫 곡으로, 예약 없으면 다음 번호 곡으로
+  if (!playing) return;
+  let s = queue.shift(); updateBanner();
+  if (!s) {
+    const list = allSongs().filter(x => x.f);
+    s = list[(list.findIndex(x => x.no === playing.no) + 1) % list.length];
+  }
+  cutToSong(s);
+}
+function keyRandom() {   // 랜덤: 재생 가능한 곡 중 무작위 (현재 곡 제외)
+  const list = allSongs().filter(x => x.f && (!playing || x.no !== playing.no));
+  if (!list.length) return;
+  const s = list[Math.floor(Math.random() * list.length)];
+  playing ? cutToSong(s) : startSong(s);
+}
+function flashDisplay(msg) {
+  disp.textContent = msg; disp.style.fontSize = '30px';
+  setTimeout(() => { disp.innerHTML = numBuf || '&nbsp;'; disp.style.fontSize = ''; }, 1400);
+}
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return; // 입력 중엔 항상 타자 우선
+  if (document.getElementById('syncTool').style.display === 'flex') {
+    // 스페이스바 탭은 2단계(탭 싱크)에서만
+    if (document.getElementById('syncStep2').style.display !== 'none' && e.code === 'Space') { e.preventDefault(); tap(); }
+    return;
+  }
+  if (document.getElementById('settings').style.display === 'flex') return;
+  if (e.key >= '0' && e.key <= '9') key(+e.key);
+  if (e.key === 'Enter') keyPlayPause();
+  if (e.key === 'Backspace') keyDel();
+});
+
+/* ══════════ 포스터 ══════════ */
+const CAT_COLOR = { '낱말1':'#ff6b81', '낱말2':'#ff9142', '낱말3':'#e0a516', '받침1':'#51b356', '받침2':'#2aa198', '받침3':'#6b9e2f', '겹글자1':'#4f9df7', '겹글자2':'#7e6fd6', '우리반':'#7e57c2' };
+let curCat = '마음';
+function songLi(s, extra) {
+  const li = document.createElement('li');
+  li.className = s.f ? 'avail' : 'na';
+  if (playing && playing.no === s.no) li.classList.add('playing');
+  li.innerHTML = '<span class="no" style="background:' + CAT_COLOR[s.c] + '">' + s.no + '</span>' +
+    '<span class="t">' + s.t + '</span><span class="st">' + stars(s.s) + '</span>' + (extra||'');
+  if (s.f) li.onclick = () => pick(s.no);
+  return li;
+}
+function fillSplit(items, id1, id2, extra) { // 포스터 1장씩: 전부 첫 목록에
+  const ol1 = document.querySelector('#'+id1+' ol');
+  ol1.innerHTML = ''; document.querySelector('#'+id2+' ol').innerHTML = '';
+  items.forEach(s => ol1.appendChild(songLi(s, extra && extra(s))));
+  // 줄 간격: 기본 1.5배(44px), 곡이 많아 넘치면 다 들어가게 자동 압축
+  if (items.length) {
+    const rowH = Math.min(44, Math.floor(ol1.clientHeight / items.length));
+    const fs = rowH < 32 ? Math.max(13, Math.floor(rowH * 0.62)) : 20;
+    ol1.querySelectorAll('li').forEach(li => { li.style.height = rowH + 'px'; li.style.fontSize = fs + 'px'; });
+  }
+}
+function showCat(c) {
+  curCat = c;
+  document.querySelectorAll('#catCol button').forEach(b => b.classList.toggle('active', (b.className.match(/cat-([^ ]+)/)||[])[1] === c));
+  const tb = document.getElementById('teacherBtn'); if (tb) tb.classList.toggle('active', c === '우리반');
+  renderCat();
+  beep(750,.1,.08);
+}
+const CAT_SHORT = { '낱말1':'🍎 낱말 ①', '낱말2':'🍊 낱말 ②', '낱말3':'🍇 낱말 ③', '받침1':'🌱 받침 ①', '받침2':'🍀 받침 ②', '받침3':'🌳 받침 ③', '겹글자1':'⭐ 겹글자 ①', '겹글자2':'🌈 겹글자 ②', '우리반':'🐼 우리반' };
+function renderCat() {
+  document.getElementById('catTitle').textContent = CAT_SHORT[curCat];
+  document.getElementById('catTitle').style.color = CAT_COLOR[curCat];
+  fillSplit(allSongs().filter(s => s.c === curCat), 'cat1', 'cat2');
+}
+function renderPop() {
+  const top = allSongs().filter(s => counts[s.no] > 0 && s.f)
+    .sort((a,b) => (counts[b.no]||0) - (counts[a.no]||0)).slice(0,10);
+  fillSplit(top, 'pop1', 'pop2', s => '<span class="cnt">' + counts[s.no] + '회</span>');
+  if (!top.length) document.querySelector('#pop1 ol').innerHTML = '<li style="opacity:.5;font-size:17px">아직 본 영상이 없어요</li>';
+}
+
+/* ══════════ 설정 ══════════ */
+function openSettings() { document.getElementById('settings').style.display = 'flex'; syncSettingsUI(); }
+function openEdit() { document.getElementById('editor').style.display = 'flex'; renderAdmin(); }
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  if (id === 'syncTool') { const v = document.getElementById('syncVideo'); v.pause(); v.removeAttribute('src'); v.load(); if (syncYtPlayer && syncYtPlayer.pauseVideo) syncYtPlayer.pauseVideo(); }
+}
+function syncSettingsUI() {
+  document.querySelectorAll('.spd').forEach(b => b.classList.toggle('on', +b.dataset.v === settings.speed));
+  document.getElementById('volume').value = settings.vol;
+  document.getElementById('volCap').value = settings.cap;
+  document.getElementById('volVal').textContent = settings.vol;
+  document.getElementById('capVal').textContent = settings.cap;
+  document.getElementById('calmBtn').textContent = settings.calm ? '켜짐' : '꺼짐';
+  document.getElementById('calmBtn').classList.toggle('on', settings.calm);
+  document.getElementById('vfullBtn').textContent = settings.videofull ? '켜짐' : '꺼짐';
+  document.getElementById('vfullBtn').classList.toggle('on', settings.videofull);
+  document.getElementById('lyrRange').value = settings.lyr;
+  document.getElementById('lyrVal').textContent = settings.lyr;
+  const sel = document.getElementById('syncSongSel'); sel.innerHTML = '';
+  allSongs().filter(s => s.f).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.no; o.textContent = s.no + '. ' + s.t + (getSync(s.no) ? ' ✔ 완료' : (SYNC_BUILTIN[s.no] ? ' ◇ 초벌' : ''));
+    sel.appendChild(o);
+  });
+}
+function setSpeed(v) { settings.speed = v; store.set('settings', settings); if (playing) video.playbackRate = v; if (usingYT && ytPlayer && ytPlayer.setPlaybackRate) ytPlayer.setPlaybackRate(v); syncSettingsUI(); }
+function setVol() {
+  settings.vol = +document.getElementById('volume').value;
+  settings.cap = +document.getElementById('volCap').value;
+  store.set('settings', settings);
+  video.volume = Math.min(settings.vol, settings.cap) / 100;
+  if (usingYT && ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(Math.min(settings.vol, settings.cap));
+  document.getElementById('volVal').textContent = settings.vol;
+  document.getElementById('capVal').textContent = settings.cap;
+}
+function toggleCalm() { settings.calm = !settings.calm; store.set('settings', settings); document.body.classList.toggle('calm', settings.calm); syncSettingsUI(); }
+
+function renderAdmin() {
+  const div = document.getElementById('songAdmin'); div.innerHTML = '';
+  const hiddenSet = new Set(hidden);
+  const map = new Map(); SONGS.forEach(s => map.set(s.no, s)); custom.forEach(s => map.set(s.no, s));
+  [...map.values()].sort((a,b) => a.no-b.no).forEach(s => {
+    const row = document.createElement('div'); row.className = 'songrow';
+    const isHidden = hiddenSet.has(s.no);
+    row.innerHTML = '<span class="no">' + s.no + '</span><span style="min-width:260px' + (isHidden?';text-decoration:line-through;color:#bbb':'') + '">' + s.t + '</span>' +
+      '<span>' + s.c + ' ' + stars(s.s) + '</span><span class="fn">' + (s.f || '영상 없음') + '</span>';
+    const btn = document.createElement('button');
+    btn.textContent = isHidden ? '복원' : '삭제';
+    if (!isHidden) btn.className = 'warn';
+    btn.onclick = e => {
+      e.stopPropagation();
+      hidden = isHidden ? hidden.filter(n => n !== s.no) : [...hidden, s.no];
+      store.set('hidden', hidden); renderAdmin(); renderCat(); renderPop(); syncSettingsUI();
+    };
+    const pbtn = document.createElement('button');
+    pbtn.textContent = '🖨 인쇄';
+    pbtn.onclick = e => { e.stopPropagation(); printSong(s); };
+    row.appendChild(pbtn);
+    row.onclick = () => { // 곡 클릭 → 아래 입력란에 채워서 수정
+      document.getElementById('addNo').value = s.no;
+      document.getElementById('addTitle').value = s.t;
+      document.getElementById('addCat').value = s.c;
+      const mmss = x => x ? Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0') : '';
+      document.getElementById('addStart').value = mmss(s.st);
+      document.getElementById('addEnd').value = mmss(s.en);
+      document.getElementById('addFile').value = s.f || '';
+      const f = document.getElementById('addFile');
+      f.scrollIntoView({block:'center', behavior:'smooth'}); f.focus();
+    };
+    row.appendChild(btn); div.appendChild(row);
+  });
+}
+function printSong(s) {
+  const saved = getSync(s.no), y = saved || SYNC_BUILTIN[s.no];
+  if (!y || !y.lines || !y.lines.length) return alert('저장된 가사가 없습니다. 가사 싱크 도구에서 가사를 먼저 입력해주세요.');
+  if (!saved && !confirm('아직 가사를 저장하지 않아 자동 인식 초벌 가사(부정확할 수 있음)로 인쇄됩니다. 계속할까요?')) return;
+  let raw = y.lines.map(l => l.text.trim()).filter(Boolean);
+  const seen = new Set();                       // 반복되는 가사는 한 번만
+  raw = raw.filter(t => !seen.has(t) && seen.add(t));
+  const lines = [];                             // 두 줄씩 합쳐 한 줄로 (합쳐서 10어절 이상이면 각각 한 줄)
+  const words = t => t.split(/\s+/).length;
+  for (let i = 0; i < raw.length; i++) {
+    if (raw[i+1] && words(raw[i]) + words(raw[i+1]) < 10) { lines.push(raw[i] + '　' + raw[i+1]); i++; }
+    else lines.push(raw[i]);
+  }
+  const sheet = document.getElementById('printSheet');
+  sheet.dataset.cat = s.c;
+  const bg = document.getElementById('psBg'), frame = document.getElementById('psFrame');
+  bg.style.display = ''; frame.style.display = 'none';
+  bg.onerror = () => { bg.style.display = 'none'; frame.style.display = ''; }; // 배경 그림 없으면 색 테두리로
+  bg.src = '이미지/가사집_' + s.c + '.png';
+  document.getElementById('psTitle').textContent = s.t;
+  document.getElementById('psSub').textContent = CATS[s.c] + ' · ' + s.no + '번';
+  const ol = document.getElementById('psLines'); ol.innerHTML = '';
+  lines.forEach(t => { const li = document.createElement('li'); li.textContent = t; ol.appendChild(li); });
+  const syms = SYMBOLS[s.no] || [];
+  const symDiv = document.getElementById('psSym');
+  symDiv.innerHTML = syms.map(w =>
+    '<div class="card"><img src="이미지/상징/' + w + '.png"><div>' + w + '</div></div>').join('');
+  symDiv.querySelectorAll('img').forEach(im => { im.onerror = () => { im.parentElement.style.display = 'none'; }; });
+  symDiv.style.display = syms.length ? 'flex' : 'none';
+  document.getElementById('psCredit').style.display = syms.length ? 'block' : 'none';
+  const two = lines.length > 26;
+  ol.className = two ? 'two' : '';
+  // 글자 크기: 줄 수 + 줄 길이(줄바꿈 예상 포함)를 모두 반영해 한 장에 맞춤 (상징 카드 있으면 그만큼 줄임)
+  const colPt = (two ? 62 : 140) * 2.835, availPt = syms.length ? 445 : 555;
+  let fs = 9;
+  for (let f = 24; f >= 9; f--) {
+    const rows = lines.reduce((a, t) => a + Math.max(1, Math.ceil(t.length * f * 1.05 / colPt)), 0);
+    if ((two ? Math.ceil(rows / 2) : rows) * f * 1.6 <= availPt) { fs = f; break; }
+  }
+  ol.style.fontSize = fs + 'pt';
+  const oldTitle = document.title;
+  document.title = s.no + '_' + s.t + '_가사';
+  document.body.classList.add('printing');
+  setTimeout(() => {
+    window.print();
+    document.body.classList.remove('printing');
+    document.title = oldTitle;
+  }, 250);
+}
+function addSong() {
+  const no = +document.getElementById('addNo').value;
+  const t = document.getElementById('addTitle').value.trim();
+  const f = document.getElementById('addFile').value.trim();
+  if (!no || !t || !f) return alert('번호, 제목, 파일명을 모두 입력해주세요.');
+  custom = custom.filter(s => s.no !== no);
+  const toSec = v => { v=(v||'').trim(); if(!v) return 0; if(v.includes(':')){const p=v.split(':'); return (+p[0]||0)*60+(+p[1]||0);} return +v||0; };
+  const stv = toSec(document.getElementById('addStart').value), env = toSec(document.getElementById('addEnd').value);
+  const rec = {no, t, c:document.getElementById('addCat').value, s:1, f};
+  if (stv) rec.st = stv; if (env) rec.en = env;
+  custom.push(rec);
+  store.set('custom', custom);
+  hidden = hidden.filter(n => n !== no); store.set('hidden', hidden);
+  document.getElementById('addNo').value = ''; document.getElementById('addTitle').value = ''; document.getElementById('addFile').value = ''; document.getElementById('addStart').value = ''; document.getElementById('addEnd').value = '';
+  renderAdmin(); renderCat(); renderPop(); syncSettingsUI();
+}
+
+/* ══════════ 데이터 내보내기/가져오기 ══════════ */
+function exportData() {
+  const data = { settings, counts, custom, hidden, sync:{} };
+  allSongs().forEach(s => { const y = store.get('sync_'+s.no, null); if (y) data.sync[s.no] = y; });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type:'application/json'}));
+  a.download = '노래방데이터.json'; a.click();
+}
+function importData(inp) {
+  const file = inp.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      applyImport(JSON.parse(r.result));
+      syncSettingsUI(); renderAdmin();
+      alert('가져오기 완료!');
+    } catch(e) { alert('파일을 읽을 수 없습니다.'); }
+  };
+  r.readAsText(file); inp.value = '';
+}
+function applyImport(d) {
+  if (d.settings) { settings = Object.assign(settings, d.settings); store.set('settings', settings); }
+  if (d.counts) { counts = d.counts; store.set('counts', counts); }
+  if (d.custom) { custom = d.custom; store.set('custom', custom); }
+  if (d.hidden) { hidden = d.hidden; store.set('hidden', hidden); }
+  if (d.sync) Object.entries(d.sync).forEach(([no, y]) => store.set('sync_'+no, y));
+  applySettings(); renderCat(); renderPop();
+}
+function resetCounts() { if (confirm('야호! 재생 횟수를 모두 지울까요?')) { counts = {}; store.set('counts', counts); renderPop(); } }
+
+/* ══════════ 탭 싱크 도구 ══════════ */
+let syncSong = null, syncTimes = [], syncTexts = [], tapIdx = 0;
+let syncYtPlayer = null, syncUsingYT = false;
+function syncCur() { return syncUsingYT ? (syncYtPlayer && syncYtPlayer.getCurrentTime ? syncYtPlayer.getCurrentTime() : 0) : sv.currentTime; }
+function syncSeek(t) {
+  if (syncUsingYT) { if (syncYtPlayer && syncYtPlayer.seekTo) { syncYtPlayer.seekTo(t, true); syncYtPlayer.playVideo(); } }
+  else { sv.currentTime = t; sv.play(); }
+}
+const sv = document.getElementById('syncVideo');
+function openSync() {
+  syncSong = getSong(+document.getElementById('syncSongSel').value);
+  if (!syncSong) return;
+  document.getElementById('syncTitle').textContent = '🎼 가사 싱크 — ' + syncSong.no + '. ' + syncSong.t;
+  const cur = getSyncAny(syncSong.no);
+  document.getElementById('syncText').value = cur ? cur.lines.map(l => l.text).join('\n') : '';
+  document.getElementById('syncStep1').style.display = 'block';
+  document.getElementById('syncStep2').style.display = 'none';
+  document.getElementById('syncTool').style.display = 'flex';
+}
+function syncToStep2() {
+  syncTexts = document.getElementById('syncText').value.split('\n').map(x => x.trim()).filter(Boolean);
+  if (!syncTexts.length) return alert('가사를 먼저 입력해주세요.');
+  syncTimes = new Array(syncTexts.length).fill(null); tapIdx = 0;
+  document.getElementById('syncStep1').style.display = 'none';
+  document.getElementById('syncStep2').style.display = 'block';
+  renderSyncLines();
+  const ytid = ytIdOf(syncSong.f);
+  syncUsingYT = !!ytid;
+  document.getElementById('syncYt').style.display = ytid ? 'block' : 'none';
+  sv.style.display = ytid ? 'none' : 'block';
+  if (ytid) {
+    ytLoad(() => {
+      if (syncYtPlayer) syncYtPlayer.loadVideoById(ytid);
+      else syncYtPlayer = new YT.Player('syncYtDiv', { width:'100%', height:'100%', videoId:ytid,
+        playerVars:{autoplay:1, controls:1, rel:0, playsinline:1, cc_load_policy:0} }); // 싱크 도구에선 유튜브 기본 컨트롤 허용(구간 이동용)
+    });
+  } else {
+    sv.src = isUrl(syncSong.f) ? syncSong.f : '영상/' + syncSong.f;
+    sv.volume = Math.min(settings.vol, settings.cap)/100; sv.play();
+  }
+}
+function renderSyncLines() {
+  const div = document.getElementById('syncLines'); div.innerHTML = '';
+  syncTexts.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'syncline' + (i === tapIdx ? ' cur' : '');
+    const tm = syncTimes[i];
+    row.innerHTML = '<span class="tm">' + (tm === null ? '--:--' : fmt(tm)) + '</span><span style="flex:1">' + t + '</span>';
+    if (tm !== null) {
+      const ng = document.createElement('span'); ng.className = 'nudge';
+      [['-0.3', -0.3], ['+0.3', 0.3], ['▶', 0]].forEach(([lab, d]) => {
+        const b = document.createElement('button'); b.textContent = lab;
+        b.onclick = e => { e.stopPropagation();
+          if (d === 0) { syncSeek(Math.max(0, syncTimes[i] - 1)); }
+          else { syncTimes[i] = Math.max(0, +(syncTimes[i] + d).toFixed(2)); renderSyncLines(); }
+        };
+        ng.appendChild(b);
+      });
+      row.appendChild(ng);
+    }
+    div.appendChild(row);
+  });
+  const cur = div.children[tapIdx]; if (cur) cur.scrollIntoView({block:'center'});
+}
+function fmt(t) { return Math.floor(t/60) + ':' + String(Math.floor(t%60)).padStart(2,'0') + '.' + Math.floor((t%1)*10); }
+function tap() {
+  if (tapIdx >= syncTexts.length) return;
+  syncTimes[tapIdx] = +syncCur().toFixed(2);
+  tapIdx++;
+  renderSyncLines();
+  beep(820,.06,.1);
+}
+function syncRestart() { syncTimes.fill(null); tapIdx = 0; syncSeek(0); renderSyncLines(); }
+function syncSave() {
+  const lines = syncTexts.map((t, i) => ({start: syncTimes[i] ?? 0, text: t})).filter((l, i) => syncTimes[i] !== null);
+  if (!lines.length) return alert('탭으로 타이밍을 찍은 줄이 없습니다.');
+  store.set('sync_'+syncSong.no, {song: syncSong.t, lines});
+  alert('저장 완료! (' + lines.length + '줄)');
+  closeModal('syncTool');
+  syncSettingsUI();
+}
+
+/* ══════════ 기타 ══════════ */
+function toggleFS() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+function applySettings() {
+  document.body.classList.toggle('calm', settings.calm);
+  document.documentElement.style.setProperty('--lyr', settings.lyr+'px');
+}
+applySettings(); updateRepeatBtn(); showCat('낱말1'); renderPop();
+// 서버 실행 중이면 폴더에 저장된 데이터를 불러옴 (파일이 브라우저 저장보다 우선)
+const hasLocal = Object.keys(localStorage).some(k => k.startsWith('hgy_') && k !== 'hgy_dataver');
+if (location.protocol !== 'file:' && !hasLocal) {
+  fetch('data/karaoke-data.json', {cache:'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (!d) return;
+      // 곡 번호가 재배치될 수 있으므로, 파일에 싱크가 있으면 브라우저에 남은 낡은 싱크를 먼저 비움
+      if (d.sync) Object.keys(localStorage).filter(k => k.startsWith('hgy_sync_')).forEach(k => localStorage.removeItem(k));
+      applyImport(d);
+    })
+    .catch(() => {});
+}
+</script>
+</body>
+</html>
