@@ -113,6 +113,23 @@
   #mgTable button { border: none; background: #f0f2f5; border-radius: 10px; padding: 7px 9px; margin: 0 2px; cursor: pointer; font-size: 16px; }
   #mgTable button.del { background: #ffebee; }
 
+  /* 🏫 교실(동기화) 모달 */
+  #classModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 55; align-items: center; justify-content: center; }
+  #classModal.open { display: flex; }
+  #clsBox { background: #fff; border-radius: 22px; padding: 20px 24px; width: min(460px, 92vw); max-height: 88vh; overflow-y: auto; }
+  #clsBox h3 { font-size: 20px; color: var(--accent-strong); text-align: center; }
+  #clsBox .sec { border: 2px solid var(--line-c); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
+  #clsBox .sec .st { font-weight: 800; margin-bottom: 8px; }
+  #clsBox input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px; margin-top: 6px; border: 2px solid var(--choice-border); border-radius: 10px; }
+  #clsBox .go { width: 100%; margin-top: 10px; background: var(--accent-strong); color: #fff; border: none; border-radius: 12px; padding: 11px; font-size: 16px; font-weight: 800; cursor: pointer; }
+  #clsBox .go.gray { background: #b0bec5; }
+  #clsBox .code-big { font-size: 34px; font-weight: 800; letter-spacing: 6px; text-align: center; color: var(--accent-strong); padding: 6px 0; }
+  #clsBox .hint { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+  #clsMsg { text-align: center; font-size: 14px; font-weight: bold; min-height: 1.4em; margin-top: 10px; color: #e53935; }
+  #clsMsg.ok { color: #2E7D32; }
+  #clsClose { display: block; margin: 12px auto 0; background: #f0f2f5; border: none; border-radius: 12px; padding: 9px 22px; font-size: 15px; font-weight: bold; cursor: pointer; }
+  .nav-btn.linked { background: #E8F5E9; color: #2E7D32; }
+
   /* 사진 모달 */
   #photoModal {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50;
@@ -146,6 +163,7 @@
 
 <nav id="navbar">
   <div class="brand">🏡 한글 놀이터</div>
+  <button class="nav-btn" id="btnClass">🏫 교실</button>
   <button class="nav-btn" id="btnManage">🧑‍🏫 학생 관리</button>
   <button class="nav-btn" id="btnBackStu" style="display:none">👤 학생 바꾸기</button>
 </nav>
@@ -178,6 +196,14 @@
   </div>
 </div>
 
+<!-- 🏫 교실 모달: 교실 코드로 여러 기기에서 학생·진도·어휘 동기화 (매일수학과 같은 교실 코드) -->
+<div id="classModal"><div id="clsBox">
+  <h3>🏫 교실 연결</h3>
+  <div id="clsBody"></div>
+  <div id="clsMsg"></div>
+  <button id="clsClose">닫기</button>
+</div></div>
+
 <!-- 학생 사진 모달: 파일 올리기 · 붙여넣기(Ctrl+V) · 배경 투명 옵션 -->
 <div id="photoModal">
   <div id="pmBox">
@@ -203,7 +229,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "1.7"; // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "2.0"; // 🏫 교실 코드 동기화(Supabase, 매일수학 프로젝트 공유 — 로컬 정본+원격 병합) // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -234,6 +260,206 @@ function faceHTML(s) {
   const p = photos()[s.name];
   return p ? '<img src="' + p + '" alt="">' : s.avatar;
 }
+/* ══════════ 🏫 교실 코드 동기화 (Supabase — 매일수학과 같은 프로젝트·교실 코드 공유) ══════════
+   저장 모델: localStorage가 정본(오프라인 우선). 교실이 연결돼 있고 인터넷이 되면
+   학생(hangul_students)·교사 편집(hangul_custom)을 당겨 와 합치고 다시 밀어 올린다.
+   합치기 규칙: 진도=항목별 최대값, 스티커=긴 쪽, 설정·사진=로컬 우선, 교사 편집=로컬이 비어 있으면 원격 채택 */
+const REMOTE = {
+  url: 'https://flabuodwvywblybbfqwc.supabase.co',
+  anonKey: 'sb_publishable_tNAVsdnTtUePE1zaKCeX-A_vWkWM8OM',   // 공개용(publishable) 키 — 내장 설계
+};
+function hubClass() { return loadStore("hubClass"); }
+async function sha256(s) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+}
+async function sb(path, opt, code) {
+  const h = { "apikey": REMOTE.anonKey, "Content-Type": "application/json",
+              "x-class-code": code || (hubClass() || {}).code || "" };
+  if (/^eyJ/.test(REMOTE.anonKey)) h["Authorization"] = "Bearer " + REMOTE.anonKey;
+  Object.assign(h, (opt || {}).headers || {});
+  const r = await fetch(REMOTE.url + "/rest/v1/" + path, Object.assign({}, opt, { headers: h }));
+  if (!r.ok) throw new Error("sb " + r.status + " " + (await r.text()).slice(0, 120));
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+function clsMsg(t, ok) {
+  const el = document.getElementById("clsMsg");
+  el.textContent = t; el.classList.toggle("ok", !!ok);
+}
+async function createClass(school, name, pin) {
+  const pinHash = await sha256(pin);
+  for (let i = 0; i < 3; i++) {
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    try {
+      await sb("classes", { method: "POST", body: JSON.stringify({ code, school, name, teacher: "", pin_hash: pinHash }) }, code);
+      return code;
+    } catch (e) { if (i === 2) throw e; }   // 코드 충돌 시 재시도
+  }
+}
+async function connectClass(code, pin) {
+  const rows = await sb("classes?code=eq." + code + "&select=code,school,name,pin_hash", null, code);
+  if (!rows || !rows.length) throw new Error("교실을 찾을 수 없어요. 코드를 확인해 주세요.");
+  if (rows[0].pin_hash !== await sha256(pin)) throw new Error("PIN이 맞지 않아요.");
+  saveStore("hubClass", { code, school: rows[0].school, name: rows[0].name, last: 0 });
+}
+/* ── 동기화: 당겨 와 합치고 밀어 올리기 ── */
+function readApp(key) { return loadStore(key) || { version: 1, lastStudent: null, students: {} }; }
+function mergeProg(loc, rem) {
+  const out = Object.assign({}, rem, loc);
+  for (const k in rem) {
+    const l = loc[k] || {}, r = rem[k];
+    out[k] = { stars: Math.max(l.stars || 0, r.stars || 0),
+               tries: Math.max(l.tries || 0, r.tries || 0),
+               correct: Math.max(l.correct || 0, r.correct || 0) };
+  }
+  return out;
+}
+function isEmptyCustom(c) {
+  if (!c) return true;
+  return Object.values(c).every(v => Array.isArray(v) ? !v.length : (typeof v === "object" ? !Object.keys(v).length : !v));
+}
+let syncBusy = false;
+async function syncNow(silent) {
+  const cls = hubClass();
+  if (!cls || syncBusy) return;
+  syncBusy = true;
+  try {
+    // 1) 당겨 오기
+    const remStu = await sb("hangul_students?class_code=eq." + cls.code + "&select=*") || [];
+    const remCus = await sb("hangul_custom?class_code=eq." + cls.code + "&select=*") || [];
+    // 2) 학생 합치기(원격 → 로컬)
+    remStu.forEach(row => {
+      APPS.forEach(app => {
+        const d = readApp(app.key);
+        let st = Object.values(d.students).find(s => s.name === row.name);
+        if (!st) {
+          st = { name: row.name, avatar: row.avatar || "🐰",
+                 settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), progress: {}, stickers: [] };
+          d.students["s" + Date.now() + Math.floor(Math.random() * 1e4)] = st;
+        }
+        const ra = (row.apps || {})[app.key];
+        if (ra) {
+          st.progress = mergeProg(st.progress || {}, ra.progress || {});
+          if ((ra.stickers || []).length > (st.stickers || []).length) st.stickers = ra.stickers;
+          if (!st.settings) st.settings = ra.settings || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        }
+        saveStore(app.key, d);
+      });
+      if (row.photo) { const ph = photos(); if (!ph[row.name]) { ph[row.name] = row.photo; saveStore("hubPhotos", ph); } }
+    });
+    // 3) 교사 편집 합치기(로컬이 비어 있으면 원격 채택)
+    remCus.forEach(row => {
+      const d = loadStore(row.app_key);
+      if (d && isEmptyCustom(d.custom) && !isEmptyCustom(row.data)) { d.custom = row.data; saveStore(row.app_key, d); }
+    });
+    // 4) 밀어 올리기 — 학생(이름 기준 upsert) + 교사 편집
+    const rows = allStudents().map(s => {
+      const apps = {};
+      APPS.forEach(app => {
+        const d = readApp(app.key);
+        const st = Object.values(d.students).find(x => x.name === s.name);
+        if (st) apps[app.key] = { progress: st.progress || {}, settings: st.settings || {}, stickers: st.stickers || [] };
+      });
+      return { id: "s" + cls.code + "_" + btoa(unescape(encodeURIComponent(s.name))).replace(/=/g, ""),
+               class_code: cls.code, name: s.name, avatar: s.avatar,
+               photo: photos()[s.name] || null, apps, updated_at: new Date().toISOString() };
+    });
+    if (rows.length)
+      await sb("hangul_students?on_conflict=class_code,name", {
+        method: "POST", headers: { "Prefer": "resolution=merge-duplicates" }, body: JSON.stringify(rows) });
+    const cus = APPS.map(app => ({ class_code: cls.code, app_key: app.key,
+                                   data: (loadStore(app.key) || {}).custom || {}, updated_at: new Date().toISOString() }))
+                    .filter(x => !isEmptyCustom(x.data));
+    if (cus.length)
+      await sb("hangul_custom", {
+        method: "POST", headers: { "Prefer": "resolution=merge-duplicates" }, body: JSON.stringify(cus) });
+    cls.last = Date.now();
+    saveStore("hubClass", cls);
+    renderClassBtn();
+    if (document.getElementById("scr-stu").classList.contains("active")) renderStudents();
+    if (document.getElementById("scr-manage").classList.contains("active")) renderManage();
+    if (!silent) clsMsg("동기화 완료! (" + rows.length + "명)", true);
+  } catch (e) {
+    if (!silent) clsMsg("동기화 실패: 인터넷 연결이나 준비 상태를 확인해 주세요.");
+    console.warn("sync", e);
+  } finally { syncBusy = false; }
+}
+/* 원격 학생 삭제·이름 변경(연결돼 있을 때만, 실패해도 로컬은 유지) */
+function remoteDelete(name) {
+  const cls = hubClass();
+  if (cls) sb("hangul_students?class_code=eq." + cls.code + "&name=eq." + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
+}
+function remoteRename(oldN, newN) {
+  const cls = hubClass();
+  if (cls) sb("hangul_students?class_code=eq." + cls.code + "&name=eq." + encodeURIComponent(oldN),
+              { method: "PATCH", body: JSON.stringify({ name: newN, updated_at: new Date().toISOString() }) }).catch(() => {});
+}
+/* ── 교실 모달 UI ── */
+function renderClassBtn() {
+  const b = document.getElementById("btnClass");
+  const cls = hubClass();
+  b.textContent = cls ? "🏫 " + cls.code : "🏫 교실";
+  b.classList.toggle("linked", !!cls);
+}
+function renderClassModal() {
+  const cls = hubClass();
+  const body = document.getElementById("clsBody");
+  clsMsg("");
+  if (cls) {
+    body.innerHTML =
+      '<div class="sec"><div class="st">연결된 교실</div>' +
+      '<div class="code-big">' + cls.code + '</div>' +
+      '<div style="text-align:center;font-weight:bold">' + (cls.school || "") + " " + (cls.name || "") + '</div>' +
+      '<div class="hint">이 코드를 다른 기기의 🏫 교실에서 입력하면 학생·진도·어휘가 따라와요.<br>마지막 동기화: ' +
+        (cls.last ? new Date(cls.last).toLocaleString("ko-KR") : "아직 없음") + '</div>' +
+      '<button class="go" id="clsSync">🔄 지금 동기화</button>' +
+      '<button class="go gray" id="clsOut">연결 끊기 (기기 기록은 남아요)</button></div>';
+    document.getElementById("clsSync").addEventListener("click", () => { clsMsg("동기화 중…", true); syncNow(); });
+    document.getElementById("clsOut").addEventListener("click", () => {
+      localStorage.removeItem("hubClass"); renderClassBtn(); renderClassModal();
+    });
+  } else {
+    body.innerHTML =
+      '<div class="sec"><div class="st">🔗 교실 코드로 연결</div>' +
+      '<input id="clsCode" inputmode="numeric" maxlength="6" placeholder="교실 코드 6자리">' +
+      '<input id="clsPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4자리">' +
+      '<button class="go" id="clsJoin">연결하기</button>' +
+      '<div class="hint">매일매일 수학에서 만든 교실 코드도 그대로 쓸 수 있어요.</div></div>' +
+      '<div class="sec"><div class="st">🏫 새 교실 만들기</div>' +
+      '<input id="clsSchool" placeholder="학교 이름">' +
+      '<input id="clsName" placeholder="학급 이름 (예: 도움반)">' +
+      '<input id="clsNewPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4자리 (선생님 비밀번호)">' +
+      '<button class="go" id="clsMake">교실 만들기</button>' +
+      '<div class="hint">인터넷이 없어도 앱은 그대로 쓸 수 있어요. 교실 연결은 여러 기기에서 기록을 이어 쓰고 싶을 때만 필요해요.</div></div>';
+    document.getElementById("clsJoin").addEventListener("click", async () => {
+      const code = document.getElementById("clsCode").value.trim();
+      const pin = document.getElementById("clsPin").value.trim();
+      if (!/^\d{6}$/.test(code) || !pin) { clsMsg("코드 6자리와 PIN을 입력해 주세요."); return; }
+      clsMsg("연결 중…", true);
+      try { await connectClass(code, pin); renderClassBtn(); renderClassModal(); clsMsg("연결됐어요! 동기화 중…", true); syncNow(); }
+      catch (e) { clsMsg(e.message.startsWith("sb") ? "연결 실패: 인터넷을 확인해 주세요." : e.message); }
+    });
+    document.getElementById("clsMake").addEventListener("click", async () => {
+      const school = document.getElementById("clsSchool").value.trim();
+      const name = document.getElementById("clsName").value.trim();
+      const pin = document.getElementById("clsNewPin").value.trim();
+      if (!school || !/^\d{4}$/.test(pin)) { clsMsg("학교 이름과 PIN 4자리를 입력해 주세요."); return; }
+      clsMsg("만드는 중…", true);
+      try {
+        const code = await createClass(school, name, pin);
+        saveStore("hubClass", { code, school, name, last: 0 });
+        renderClassBtn(); renderClassModal(); syncNow(true);
+      } catch (e) { clsMsg("만들기 실패: 인터넷을 확인해 주세요."); console.warn(e); }
+    });
+  }
+}
+document.getElementById("btnClass").addEventListener("click", () => {
+  renderClassModal();
+  document.getElementById("classModal").classList.add("open");
+});
+document.getElementById("clsClose").addEventListener("click", () => document.getElementById("classModal").classList.remove("open"));
+
 /* ── 사진 모달: 파일·붙여넣기(Ctrl+V)·배경 투명 옵션 ── */
 let pmName = null, pmSrcImg = null, pmResult = null;
 function openPhotoModal(name) {
@@ -432,6 +658,7 @@ function renameEverywhere(oldN, newN) {
   });
   const ph = photos();
   if (ph[oldN]) { ph[newN] = ph[oldN]; delete ph[oldN]; saveStore("hubPhotos", ph); }
+  remoteRename(oldN, newN);   // 교실 연결 시 원격에도 반영(실패 무시)
 }
 function deleteEverywhere(name) {
   APPS.forEach(a => {
@@ -444,6 +671,7 @@ function deleteEverywhere(name) {
   const ph = photos();
   delete ph[name];
   saveStore("hubPhotos", ph);
+  remoteDelete(name);   // 교실 연결 시 원격에서도 삭제(실패 무시)
 }
 /* ── 학생 관리 탭: 학생 편집 + 진도 한눈에 ── */
 function renderManage() {
@@ -587,14 +815,24 @@ document.getElementById("btnFree").addEventListener("click", () => {
   renderDash();
 });
 document.getElementById("btnBackStu").addEventListener("click", () => { show("scr-stu"); renderStudents(); });
-/* 앱에서 돌아왔을 때 최신 진도 반영 */
+/* 앱에서 돌아왔을 때 최신 진도 반영 + 교실 자동 동기화(10초 간격 제한) */
+let lastAutoSync = 0;
+function autoSync() {
+  if (hubClass() && Date.now() - lastAutoSync > 10000) { lastAutoSync = Date.now(); syncNow(true); }
+}
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
+  if (!document.hidden) {
+    autoSync();
+    if (curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
+  }
 });
 window.addEventListener("pageshow", () => {
+  autoSync();
   if (curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
 });
 renderStudents();
+renderClassBtn();
+autoSync();   // 시작 시 1회(교실 연결 시)
 </script>
 </body>
 </html>
