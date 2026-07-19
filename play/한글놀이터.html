@@ -229,7 +229,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "2.0"; // 🏫 교실 코드 동기화(Supabase, 매일수학 프로젝트 공유 — 로컬 정본+원격 병합) // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "2.1"; // 영문 교실 코드 허용(매일수학 호환)·PIN 8자·✏️어휘 편집=학생 관리로 이동 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -422,8 +422,8 @@ function renderClassModal() {
   } else {
     body.innerHTML =
       '<div class="sec"><div class="st">🔗 교실 코드로 연결</div>' +
-      '<input id="clsCode" inputmode="numeric" maxlength="6" placeholder="교실 코드 6자리">' +
-      '<input id="clsPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4자리">' +
+      '<input id="clsCode" maxlength="6" placeholder="교실 코드 6자리 (숫자·영문 모두 가능)" style="text-transform:uppercase">' +
+      '<input id="clsPin" type="password" maxlength="8" placeholder="PIN (4자리 이상)">' +
       '<button class="go" id="clsJoin">연결하기</button>' +
       '<div class="hint">매일매일 수학에서 만든 교실 코드도 그대로 쓸 수 있어요.</div></div>' +
       '<div class="sec"><div class="st">🏫 새 교실 만들기</div>' +
@@ -433,9 +433,9 @@ function renderClassModal() {
       '<button class="go" id="clsMake">교실 만들기</button>' +
       '<div class="hint">인터넷이 없어도 앱은 그대로 쓸 수 있어요. 교실 연결은 여러 기기에서 기록을 이어 쓰고 싶을 때만 필요해요.</div></div>';
     document.getElementById("clsJoin").addEventListener("click", async () => {
-      const code = document.getElementById("clsCode").value.trim();
+      const code = document.getElementById("clsCode").value.trim().toUpperCase();   // 매일수학 코드=영문 조합도 허용
       const pin = document.getElementById("clsPin").value.trim();
-      if (!/^\d{6}$/.test(code) || !pin) { clsMsg("코드 6자리와 PIN을 입력해 주세요."); return; }
+      if (!/^[A-Z0-9]{6}$/.test(code) || !pin) { clsMsg("코드 6자리와 PIN을 입력해 주세요."); return; }
       clsMsg("연결 중…", true);
       try { await connectClass(code, pin); renderClassBtn(); renderClassModal(); clsMsg("연결됐어요! 동기화 중…", true); syncNow(); }
       catch (e) { clsMsg(e.message.startsWith("sb") ? "연결 실패: 인터넷을 확인해 주세요." : e.message); }
@@ -721,6 +721,13 @@ function renderManage() {
   trAdd.innerHTML = '<td colspan="' + (APPS.length + 2) + '"><button id="mgAdd" style="background:var(--accent-soft);color:var(--accent-strong);font-weight:800;padding:9px 22px">➕ 학생 추가</button></td>';
   trAdd.querySelector("#mgAdd").addEventListener("click", addStudentFlow);
   tb.appendChild(trAdd);
+  // ✏️ 어휘 편집(교사용): 앱 안 편집 화면으로 바로 이동 — 학생 화면에는 편집 버튼이 없다
+  const trEdit = document.createElement("tr");
+  trEdit.innerHTML = '<td colspan="' + (APPS.length + 2) + '" style="text-align:left;padding:12px 14px"><b style="margin-right:8px">✏️ 어휘 편집</b>' +
+    APPS.map((a, i) => '<button data-i="' + i + '" style="margin:2px 4px;padding:8px 12px">' + a.emoji + " " + a.nm + '</button>').join("") + '</td>';
+  trEdit.querySelectorAll("button").forEach(b =>
+    b.addEventListener("click", () => location.href = APPS[b.dataset.i].href + "?edit=1"));
+  tb.appendChild(trEdit);
 }
 document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); });
 function renderStudents() {
