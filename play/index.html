@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>한글 놀이터 — 우리 반 한글 학습 홈</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --page-bg: #E9ECEF; --ink: #2D3436; --ink-soft: #777;
+    --accent: #64B5F6; --accent-strong: #1E88E5; --accent-soft: #E3F2FD;
+    --choice-bg: #F2FAFF; --choice-border: #90CAF9; --line-c: #dce2e8;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+    background: var(--page-bg); color: var(--ink); overflow: hidden;
+    user-select: none; -webkit-user-select: none; touch-action: manipulation;
+    display: flex; flex-direction: column; word-break: keep-all;
+  }
+  #navbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px clamp(10px, 1.5vw, 20px);
+    background: #fff; border-bottom: 1px solid var(--line-c); flex-shrink: 0;
+  }
+  #navbar .brand { font-size: clamp(18px, 2.6vw, 26px); font-weight: 800; color: var(--accent-strong); margin-right: auto; }
+  .nav-btn {
+    background: var(--accent-soft); border: none; border-radius: 999px;
+    padding: 9px 16px; cursor: pointer; font-size: clamp(14px, 1.8vw, 18px); font-weight: bold; color: var(--accent-strong);
+  }
+  #screens { flex: 1; min-height: 0; padding: clamp(8px, 1.5vw, 16px); overflow-y: auto; }
+  .screen { display: none; height: 100%; flex-direction: column; max-width: 1200px; margin: 0 auto; }
+  .screen.active { display: flex; }
+  .title { font-size: clamp(20px, 3vw, 30px); font-weight: 800; color: var(--accent-strong); text-align: center; padding: 14px 0 4px; }
+
+  /* 학생 선택 */
+  #stuGrid {
+    flex: 1; display: flex; flex-wrap: wrap; gap: clamp(14px, 2.5vw, 30px);
+    align-content: center; justify-content: center; padding: 10px 20px;
+  }
+  .stu-card {
+    background: #fff; border: 5px solid var(--choice-border); border-radius: 28px;
+    box-shadow: 0 6px 16px rgba(60,80,110,.15); cursor: pointer; text-align: center;
+    width: clamp(150px, 22vw, 230px); padding: clamp(14px, 3vh, 28px) 8px; transition: .15s;
+  }
+  .stu-card:active { transform: translateY(3px); }
+  .stu-card .face { font-size: clamp(52px, 9vh, 90px); line-height: 1.2; }
+  .stu-card .face img, #dashName img {
+    width: clamp(64px, 11vh, 110px); height: clamp(64px, 11vh, 110px);
+    border-radius: 50%; object-fit: cover; border: 3px solid var(--choice-border); vertical-align: middle;
+  }
+  #dashName img { width: 48px; height: 48px; }
+  .stu-card .name { font-size: clamp(22px, 3vw, 34px); font-weight: bold; color: var(--accent-strong); margin-top: 4px; }
+  .stu-card.add { border-style: dashed; border-color: #b0bec5; box-shadow: none; background: #fafafa; }
+  .stu-card.add .face, .stu-card.add .name { color: #90a4ae; }
+
+  /* 진도판 */
+  #dashName { text-align: center; font-size: clamp(22px, 3.4vw, 34px); font-weight: 800; padding: 6px 0; }
+  #nextBox {
+    background: #fff; border: 4px solid var(--accent-strong); border-radius: 24px;
+    box-shadow: 0 6px 18px rgba(30,136,229,.2);
+    margin: 8px auto; padding: 16px 22px; width: min(680px, 96%); text-align: center;
+  }
+  #nextBox .lab { font-size: clamp(14px, 1.8vw, 18px); color: var(--ink-soft); font-weight: bold; }
+  #nextBox .what { font-size: clamp(22px, 3.2vw, 32px); font-weight: 800; margin: 6px 0 12px; }
+  #nextBox .what .em { color: var(--accent-strong); }
+  #btnGo {
+    font-size: clamp(20px, 3vw, 28px); font-weight: 800; color: #fff;
+    background: var(--accent-strong); border: none; border-radius: 20px;
+    padding: 12px 44px; cursor: pointer; box-shadow: 0 5px 14px rgba(30,136,229,.35); transition: .15s;
+  }
+  #btnGo:active { transform: translateY(3px); }
+  #appList { display: flex; flex-direction: column; gap: 10px; padding: 8px 0 20px; width: min(680px, 96%); margin: 0 auto; }
+  .app-row {
+    display: flex; align-items: center; gap: 14px;
+    background: #fff; border: 3px solid var(--choice-border); border-radius: 18px;
+    padding: 12px 16px; cursor: pointer; transition: .15s;
+  }
+  .app-row:active { transform: translateY(2px); }
+  .app-row.done-all { border-color: #FFB300; background: #FFF8E1; }
+  .app-row .emoji { font-size: clamp(26px, 4vh, 38px); }
+  .app-row .info { flex: 1; }
+  .app-row .nm { font-size: clamp(17px, 2.2vw, 22px); font-weight: 800; }
+  .app-row .sub { font-size: clamp(12px, 1.5vw, 15px); color: var(--ink-soft); font-weight: bold; margin-top: 2px; }
+  .bar { height: 12px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+  .bar > div { height: 100%; background: var(--accent-strong); border-radius: 999px; transition: width .4s; }
+  .app-row .pct { font-size: clamp(15px, 2vw, 19px); font-weight: 800; color: var(--accent-strong); min-width: 74px; text-align: right; }
+  /* 선생님 모드: 앱별 전 단원 칩 */
+  .nav-btn.on { background: var(--accent-strong); color: #fff; }
+  .unit-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 4px 12px 56px; }
+  .unit-chip {
+    font-size: clamp(14px, 1.8vw, 18px); font-weight: bold;
+    border: 2px solid var(--choice-border); background: #fff; color: var(--ink);
+    border-radius: 12px; padding: 6px 12px; cursor: pointer;
+  }
+  .unit-chip.done { border-color: #FFB300; background: #FFF8E1; }
+  .unit-chip:active { transform: translateY(2px); }
+  .home-footer { text-align: center; font-size: 11px; color: #9e9e9e; padding: 6px 12px 10px; flex-shrink: 0; }
+  .home-footer a { color: inherit; }
+
+  /* 학생 관리 */
+  #mgWrap { overflow: auto; background: #fff; border: 3px solid var(--choice-border); border-radius: 18px; margin: 8px auto 16px; width: min(880px, 98%); }
+  #mgTable { width: 100%; border-collapse: collapse; font-size: clamp(14px, 1.8vw, 17px); }
+  #mgTable th, #mgTable td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--line-c); }
+  #mgTable th { background: var(--accent-soft); color: var(--accent-strong); font-size: clamp(13px, 1.7vw, 16px); }
+  #mgTable .stu { font-weight: 800; display: flex; align-items: center; gap: 8px; justify-content: flex-start; padding-left: 6px; }
+  #mgTable .stu img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--choice-border); }
+  #mgTable .stu .emo { font-size: 28px; }
+  #mgTable .pct { font-weight: 800; color: var(--accent-strong); }
+  #mgTable .pct small { display: block; font-weight: normal; color: var(--ink-soft); }
+  #mgTable .mini-bar { height: 7px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+  #mgTable .mini-bar > div { height: 100%; background: var(--accent-strong); }
+  #mgTable button { border: none; background: #f0f2f5; border-radius: 10px; padding: 7px 9px; margin: 0 2px; cursor: pointer; font-size: 16px; }
+  #mgTable button.del { background: #ffebee; }
+
+  /* 사진 모달 */
+  #photoModal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50;
+    align-items: center; justify-content: center;
+  }
+  #photoModal.open { display: flex; }
+  #pmBox { background: #fff; border-radius: 22px; padding: 20px 24px; width: min(440px, 92vw); text-align: center; }
+  #pmTitle { font-weight: 800; font-size: 20px; color: var(--accent-strong); }
+  #pmPreview {
+    margin: 14px auto 6px; width: 130px; height: 130px; border-radius: 50%;
+    border: 3px solid var(--choice-border); overflow: hidden;
+    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0/20px 20px; /* 투명 확인용 체크무늬 */
+    display: flex; align-items: center; justify-content: center; font-size: 48px; color: #b0bec5;
+  }
+  #pmPreview img { width: 100%; height: 100%; object-fit: cover; }
+  #pmBox .row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  #pmBox .row button, #pmBox .row label.chk {
+    border: 2px solid var(--choice-border); background: #fff; border-radius: 12px;
+    padding: 9px 14px; cursor: pointer; font-size: 15px; font-weight: bold; color: var(--ink);
+  }
+  #pmBox .row label.chk { display: flex; align-items: center; gap: 6px; }
+  #pmHint { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+  #pmBox .act { margin-top: 14px; display: flex; gap: 10px; justify-content: center; }
+  #pmOk { background: var(--accent-strong); color: #fff; border: none; border-radius: 14px; padding: 10px 30px; font-size: 17px; font-weight: 800; cursor: pointer; }
+  #pmOk:disabled { background: #b0bec5; cursor: default; }
+  #pmCancel, #pmClear { background: #f0f2f5; border: none; border-radius: 14px; padding: 10px 18px; font-size: 15px; font-weight: bold; cursor: pointer; }
+  #pmClear { background: #ffebee; }
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="brand">🏡 한글 놀이터</div>
+  <button class="nav-btn" id="btnManage">🧑‍🏫 학생 관리</button>
+  <button class="nav-btn" id="btnBackStu" style="display:none">👤 학생 바꾸기</button>
+</nav>
+
+<div id="screens">
+  <!-- 학생 선택 -->
+  <div class="screen active" id="scr-stu">
+    <div class="title">누구랑 공부할까요?</div>
+    <div id="stuGrid"></div>
+  </div>
+
+  <!-- 진도판 -->
+  <div class="screen" id="scr-dash">
+    <div id="dashHead" style="display:flex; align-items:center; justify-content:center; gap:14px">
+      <div id="dashName"></div>
+      <button class="nav-btn" id="btnFree">🎈 자유 모드</button>
+    </div>
+    <div id="nextBox">
+      <div class="lab">✨ 다음에 할 공부</div>
+      <div class="what" id="nextWhat"></div>
+      <button id="btnGo">▶ 이어서 하기</button>
+    </div>
+    <div id="appList"></div>
+  </div>
+
+  <!-- 학생 관리: 학생 편집 + 진도 한눈에 -->
+  <div class="screen" id="scr-manage">
+    <div class="title">🧑‍🏫 학생 관리</div>
+    <div id="mgWrap"><table id="mgTable"></table></div>
+  </div>
+</div>
+
+<!-- 학생 사진 모달: 파일 올리기 · 붙여넣기(Ctrl+V) · 배경 투명 옵션 -->
+<div id="photoModal">
+  <div id="pmBox">
+    <div id="pmTitle">📷 학생 사진</div>
+    <div id="pmPreview">🙂</div>
+    <div class="row">
+      <button id="pmFile">📁 파일 올리기</button>
+      <button id="pmPaste">📋 붙여넣기</button>
+      <label class="chk"><input type="checkbox" id="pmTransparent"> 배경 투명</label>
+    </div>
+    <div id="pmHint">복사한 사진이 있으면 Ctrl+V 를 눌러도 돼요</div>
+    <div class="act">
+      <button id="pmOk" disabled>확인</button>
+      <button id="pmClear" style="display:none">🗑 사진 지우기</button>
+      <button id="pmCancel">취소</button>
+    </div>
+  </div>
+</div>
+
+<div class="home-footer">
+  by 민예원선생님 <a href="mailto:iepnote@gmail.com">📧 iepnote@gmail.com</a> · 그림상징 출처: ARASAAC (arasaac.org) · CC BY-NC-SA · 어휘 목록: 국립국어원 「국어 기초 어휘 선정 및 어휘 등급화」 연구 보고서(인공지능 학습용, <a href="https://www.korean.go.kr/front/reportData/reportDataView.do?mn_id=45&amp;report_seq=1160" target="_blank">korean.go.kr</a>)
+</div>
+
+<script>
+"use strict";
+const HUB_VERSION = "1.7"; // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+
+/* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
+const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
+const WORD_ORDER = ["아기","코","다리","머리","이모","아빠","어머니","허리","나비","오리","여우","하마","타조","사자","다람쥐","개미",
+                    "바지","모자","가위","시소","피아노","우유","주스","지우개","나무","바다","포도","두부","파","고구마","소나기","채소"];
+const CARD_ORDER = ["가구","가수","가오리","가위","가족","가면","가재","가방","가지","나무꾼","나라","나무","나물","나뭇잎","나비","나사","나팔",
+                    "다람쥐","다리","다섯","다시마","다이아몬드","다리미","라디오","라마","라면","라이터","라일락","라바","라임","라켓",
+                    "마녀","마늘","마당","마법사","마스크","마요네즈","마이크","마차","바구니","바나나","바다","바람","바람개비","바위","바지","바퀴",
+                    "사과","사냥꾼","사다리","사랑","사슴","사이다","사자","사탕","사람","아기","아몬드","아저씨","아빠","아이스크림","아침","아파트","아홉",
+                    "자","자두","자라","자루","자석","자장면","자전거","자주색","차","차도","차창","차례","차키","차표",
+                    "카네이션","카드","카레","카메라","카멜레온","카트","카페","타워","타이어","타요","타일","타조","타이머",
+                    "파","파도","파랑","파리","파마","파인애플","파티","파프리카","하나","하늘","하마","하모니카","하루","하품","하수구"];
+const BATCHIM_ORDER = ["ㅁ","ㅇ","ㄴ","ㄹ","ㅂ","ㄱ"];
+const APPS = [
+  { key: "jamoPlay",    nm: "자음모음과 놀아요",  emoji: "🔤", href: "자모놀이/outputs/자모놀이.html",   order: JAMO_ORDER,    unitLabel: "글자" },
+  { key: "wordPlay",    nm: "소리를 듣고 찾아요", emoji: "📚", href: "낱말놀이/outputs/낱말놀이.html",   order: WORD_ORDER,    unitLabel: "낱말" },
+  { key: "wordCard",    nm: "낱말과 놀아요",      emoji: "🃏", href: "단어카드/outputs/단어카드.html",   order: CARD_ORDER,    unitLabel: "낱말",
+    chips: ["가","나","다","라","마","바","사","아","자","차","카","타","파","하"] },   // 자유 모드 칩=분류
+  { key: "batchimPlay", nm: "받침과 놀아요",  emoji: "📌", href: "받침놀이/outputs/받침놀이.html",   order: BATCHIM_ORDER, unitLabel: "받침" }
+];
+const AVATARS = ["🐰","🐻","🐱","🐶","🦁","🐸","🐼","🦊","🐥","🐧","🐨","🦄"];
+const DEFAULT_SETTINGS = { volume: 0.9, muted: false, scale: 1, noImage: false, calm: false, speed: "normal", lang: "ko",
+                           langScope: { guide: false, quiz: false, mean: false } };
+
+/* 학생 사진(선택) — 런처 전용 저장 */
+function photos() { return loadStore("hubPhotos") || {}; }
+function faceHTML(s) {
+  const p = photos()[s.name];
+  return p ? '<img src="' + p + '" alt="">' : s.avatar;
+}
+/* ── 사진 모달: 파일·붙여넣기(Ctrl+V)·배경 투명 옵션 ── */
+let pmName = null, pmSrcImg = null, pmResult = null;
+function openPhotoModal(name) {
+  pmName = name; pmSrcImg = null; pmResult = null;
+  document.getElementById("pmTitle").textContent = "📷 " + name + " 사진";
+  document.getElementById("pmTransparent").checked = false;
+  document.getElementById("pmOk").disabled = true;
+  document.getElementById("pmClear").style.display = photos()[name] ? "" : "none";
+  const pv = document.getElementById("pmPreview");
+  const old = photos()[name];
+  pv.innerHTML = old ? '<img src="' + old + '" alt="">' : "🙂";
+  document.getElementById("photoModal").classList.add("open");
+}
+function pmClose() { document.getElementById("photoModal").classList.remove("open"); pmName = null; }
+function pmLoad(srcUrl) {
+  const img = new Image();
+  img.onload = () => { pmSrcImg = img; pmProcess(); };
+  img.src = srcUrl;
+}
+/* 200px 중앙 정사각형 크롭 (+옵션: 테두리 색 기준 flood fill로 배경 투명화) */
+function pmProcess() {
+  if (!pmSrcImg) return;
+  const size = 200;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const cx = cv.getContext("2d");
+  const m = Math.min(pmSrcImg.width, pmSrcImg.height);
+  cx.drawImage(pmSrcImg, (pmSrcImg.width - m) / 2, (pmSrcImg.height - m) / 2, m, m, 0, 0, size, size);
+  if (document.getElementById("pmTransparent").checked) {
+    const im = cx.getImageData(0, 0, size, size), d = im.data;
+    const corners = [0, (size - 1) * 4, (size - 1) * size * 4, ((size * size) - 1) * 4];
+    let r = 0, g = 0, b = 0;
+    corners.forEach(i => { r += d[i]; g += d[i + 1]; b += d[i + 2]; });
+    r /= 4; g /= 4; b /= 4;
+    const near = i => Math.abs(d[i] - r) + Math.abs(d[i + 1] - g) + Math.abs(d[i + 2] - b) < 120;
+    const seen = new Uint8Array(size * size);
+    const q = [];
+    for (let x = 0; x < size; x++) { q.push(x, x + (size - 1) * size); }
+    for (let y = 0; y < size; y++) { q.push(y * size, y * size + size - 1); }
+    while (q.length) {
+      const p = q.pop();
+      if (seen[p]) continue;
+      seen[p] = 1;
+      if (!near(p * 4)) continue;
+      d[p * 4 + 3] = 0;
+      const x = p % size, y = (p - x) / size;
+      if (x > 0) q.push(p - 1);
+      if (x < size - 1) q.push(p + 1);
+      if (y > 0) q.push(p - size);
+      if (y < size - 1) q.push(p + size);
+    }
+    cx.putImageData(im, 0, 0);
+    pmResult = cv.toDataURL("image/png");
+  } else {
+    pmResult = cv.toDataURL("image/jpeg", 0.82);
+  }
+  document.getElementById("pmPreview").innerHTML = '<img src="' + pmResult + '" alt="">';
+  document.getElementById("pmOk").disabled = false;
+}
+document.getElementById("pmTransparent").addEventListener("change", pmProcess);
+document.getElementById("pmFile").addEventListener("click", () => {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.onchange = () => { if (inp.files[0]) pmLoad(URL.createObjectURL(inp.files[0])); };
+  inp.click();
+});
+document.getElementById("pmPaste").addEventListener("click", async () => {
+  try {
+    const items = await navigator.clipboard.read();
+    for (const it of items) {
+      const t = it.types.find(x => x.startsWith("image/"));
+      if (t) { pmLoad(URL.createObjectURL(await it.getType(t))); return; }
+    }
+    alert("복사된 사진이 없어요. 사진을 복사한 뒤 다시 눌러 주세요.");
+  } catch (e) { alert("붙여넣기가 안 되면 Ctrl+V 를 눌러 보세요."); }
+});
+document.addEventListener("paste", e => {
+  if (!document.getElementById("photoModal").classList.contains("open")) return;
+  const f = [...(e.clipboardData || {}).items || []].find(x => x.type.startsWith("image/"));
+  if (f) pmLoad(URL.createObjectURL(f.getAsFile()));
+});
+document.getElementById("pmOk").addEventListener("click", () => {
+  if (!pmResult || !pmName) return;
+  const ph = photos();
+  ph[pmName] = pmResult;
+  saveStore("hubPhotos", ph);
+  pmClose(); renderStudents(); renderManage();
+});
+document.getElementById("pmClear").addEventListener("click", () => {
+  const ph = photos();
+  delete ph[pmName];
+  saveStore("hubPhotos", ph);
+  pmClose(); renderStudents(); renderManage();
+});
+document.getElementById("pmCancel").addEventListener("click", pmClose);
+/* 해당 앱에 학생이 없으면 만들어 준다(자유 모드에서 미학습 앱으로 갈 때 학생 화면에 걸리는 문제 방지) */
+function ensureStudent(name, app) {
+  const d = loadStore(app.key) || { version: 1, lastStudent: null, students: {} };
+  if (!d.students) d.students = {};
+  if (!Object.values(d.students).some(s => s.name === name)) {
+    const src = allStudents().find(s => s.name === name);
+    const id = "s" + Date.now();
+    d.students[id] = { name, avatar: (src && src.avatar) || "🐰",
+                       settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), progress: {}, stickers: [] };
+    saveStore(app.key, d);
+  }
+}
+function gotoApp(app, unit) {
+  if (curName) ensureStudent(curName, app);
+  location.href = app.href + (curName ? "?s=" + encodeURIComponent(curName) : "?guest=1") +
+    (unit ? "&u=" + encodeURIComponent(unit) : "");
+}
+function loadStore(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || null; } catch (e) { return null; }
+}
+function saveStore(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { alert("저장 공간이 부족해요."); }
+}
+/* 4개 앱의 학생을 이름으로 합친다 */
+function allStudents() {
+  const map = {};   // name -> {name, avatar}
+  APPS.forEach(a => {
+    const d = loadStore(a.key);
+    if (d && d.students) Object.values(d.students).forEach(s => {
+      if (!map[s.name]) map[s.name] = { name: s.name, avatar: s.avatar };
+    });
+  });
+  return Object.values(map);
+}
+/* 학생 추가: 4개 앱 저장소에 동시에 만든다 */
+function addStudentEverywhere(name) {
+  const used = allStudents().map(s => s.avatar);
+  const avatar = AVATARS.find(a => !used.includes(a)) || AVATARS[allStudents().length % AVATARS.length];
+  APPS.forEach((a, i) => {
+    const d = loadStore(a.key) || { version: 1, lastStudent: null, students: {} };
+    if (!d.students) d.students = {};
+    const exists = Object.values(d.students).some(s => s.name === name);
+    if (!exists) {
+      const id = "s" + Date.now() + "_" + i;
+      d.students[id] = { name, avatar, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), progress: {}, stickers: [] };
+      saveStore(a.key, d);
+    }
+  });
+}
+/* 학생의 앱별 진도: {done, total, next} — 항목 완료 = 별 3 */
+function progressOf(name, app) {
+  const d = loadStore(app.key);
+  let prog = {};
+  if (d && d.students) {
+    const s = Object.values(d.students).find(x => x.name === name);
+    if (s) prog = s.progress || {};
+  }
+  let done = 0;
+  let next = null;
+  app.order.forEach(item => {
+    if (((prog[item] || {}).stars || 0) >= 3) done++;
+    else if (next === null) next = item;
+  });
+  return { done: Math.min(done, app.order.length), total: app.order.length, next };
+}
+/* 추천: 위계 순서에서 첫 미완료 앱의 첫 미완료 항목 */
+function recommend(name) {
+  for (const app of APPS) {
+    const p = progressOf(name, app);
+    if (p.done < p.total) return { app, next: p.next, p };
+  }
+  return null;   // 전부 완료!
+}
+
+/* ── 화면 ── */
+let curName = null;
+let freeMode = false;
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("btnBackStu").style.display = id === "scr-stu" ? "none" : "";
+  document.getElementById("btnManage").style.display = id === "scr-manage" ? "none" : "";
+}
+/* 학생 추가(선택 화면·관리 탭 공용): 이름 → 4앱 생성 → 사진 모달 */
+function addStudentFlow() {
+  const n = (window.prompt("학생 이름을 입력하세요\n(4개 앱에 한 번에 만들어져요)") || "").trim();
+  if (!n) return;
+  addStudentEverywhere(n);
+  renderStudents(); renderManage();
+  openPhotoModal(n);   // 사진은 선택 — 취소하면 동물 얼굴
+}
+/* 이름 바꾸기·삭제: 4앱 저장소 + 사진 키까지 */
+function renameEverywhere(oldN, newN) {
+  APPS.forEach(a => {
+    const d = loadStore(a.key);
+    if (d && d.students) {
+      Object.values(d.students).forEach(s => { if (s.name === oldN) s.name = newN; });
+      saveStore(a.key, d);
+    }
+  });
+  const ph = photos();
+  if (ph[oldN]) { ph[newN] = ph[oldN]; delete ph[oldN]; saveStore("hubPhotos", ph); }
+}
+function deleteEverywhere(name) {
+  APPS.forEach(a => {
+    const d = loadStore(a.key);
+    if (d && d.students) {
+      for (const id in d.students) if (d.students[id].name === name) delete d.students[id];
+      saveStore(a.key, d);
+    }
+  });
+  const ph = photos();
+  delete ph[name];
+  saveStore("hubPhotos", ph);
+}
+/* ── 학생 관리 탭: 학생 편집 + 진도 한눈에 ── */
+function renderManage() {
+  const tb = document.getElementById("mgTable");
+  tb.innerHTML = "";
+  const head = document.createElement("tr");
+  head.innerHTML = "<th style='text-align:left;padding-left:12px'>학생</th>" +
+    APPS.map(a => "<th>" + a.emoji + "<br>" + a.nm + "</th>").join("") + "<th>관리</th>";
+  tb.appendChild(head);
+  allStudents().forEach(s => {
+    const tr = document.createElement("tr");
+    let cells = '<td><div class="stu">' +
+      (photos()[s.name] ? '<img src="' + photos()[s.name] + '" alt="">' : '<span class="emo">' + s.avatar + "</span>") +
+      s.name + "</div></td>";
+    APPS.forEach(app => {
+      const p = progressOf(s.name, app);
+      const pct = Math.round(p.done / p.total * 100);
+      cells += '<td><div class="pct">' + pct + "%<small>" + p.done + "/" + p.total + "</small>" +
+        '<div class="mini-bar"><div style="width:' + pct + '%"></div></div></div></td>';
+    });
+    cells += "<td></td>";
+    tr.innerHTML = cells;
+    const td = tr.lastElementChild;
+    const bPhoto = document.createElement("button");
+    bPhoto.textContent = "📷"; bPhoto.title = "사진";
+    bPhoto.addEventListener("click", () => openPhotoModal(s.name));
+    const bName = document.createElement("button");
+    bName.textContent = "✏️"; bName.title = "이름 바꾸기";
+    bName.addEventListener("click", () => {
+      const n = (window.prompt("새 이름", s.name) || "").trim();
+      if (!n || n === s.name) return;
+      if (allStudents().some(x => x.name === n)) { alert("이미 있는 이름이에요."); return; }
+      renameEverywhere(s.name, n);
+      renderManage(); renderStudents();
+    });
+    const bDel = document.createElement("button");
+    bDel.textContent = "🗑️"; bDel.className = "del"; bDel.title = "삭제";
+    bDel.addEventListener("click", () => {
+      if (!confirm("'" + s.name + "' 학생을 4개 앱에서 모두 삭제할까요?\n(진도·별·스티커가 지워져요)")) return;
+      deleteEverywhere(s.name);
+      renderManage(); renderStudents();
+    });
+    td.append(bPhoto, bName, bDel);
+    tb.appendChild(tr);
+  });
+  const trAdd = document.createElement("tr");
+  trAdd.innerHTML = '<td colspan="' + (APPS.length + 2) + '"><button id="mgAdd" style="background:var(--accent-soft);color:var(--accent-strong);font-weight:800;padding:9px 22px">➕ 학생 추가</button></td>';
+  trAdd.querySelector("#mgAdd").addEventListener("click", addStudentFlow);
+  tb.appendChild(trAdd);
+}
+document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); });
+function renderStudents() {
+  const grid = document.getElementById("stuGrid");
+  grid.innerHTML = "";
+  allStudents().forEach(s => {
+    const c = document.createElement("div");
+    c.className = "stu-card";
+    c.innerHTML = '<div class="face">' + faceHTML(s) + '</div><div class="name">' + s.name + "</div>";
+    c.addEventListener("click", () => { curName = s.name; freeMode = false; renderDash(); show("scr-dash"); });
+    grid.appendChild(c);
+  });
+  const add = document.createElement("div");
+  add.className = "stu-card add";
+  add.innerHTML = '<div class="face">➕</div><div class="name">학생 추가</div>';
+  add.addEventListener("click", addStudentFlow);
+  grid.appendChild(add);
+  // 🎈 손님 자유 모드: 학생 정보 없이 아무 단계나 놀기(기록 저장 안 됨)
+  const guest = document.createElement("div");
+  guest.className = "stu-card add";
+  guest.style.borderColor = "var(--accent)";
+  guest.innerHTML = '<div class="face">🎈</div><div class="name" style="color:var(--accent-strong)">자유 모드</div>';
+  guest.addEventListener("click", () => { curName = null; freeMode = true; renderDash(); show("scr-dash"); });
+  grid.appendChild(guest);
+}
+function renderDash() {
+  const guest = !curName;
+  const s = allStudents().find(x => x.name === curName);
+  document.getElementById("dashName").innerHTML = guest
+    ? "🎈 자유 모드 <span style='font-size:.55em;color:var(--ink-soft)'>(기록 저장 없이 놀기)</span>"
+    : (s ? faceHTML(s) + " " : "") + curName;
+  document.getElementById("btnFree").style.display = guest ? "none" : "";
+  document.getElementById("nextBox").style.display = guest ? "none" : "";
+  if (!guest) {
+  const rec = recommend(curName);
+  const what = document.getElementById("nextWhat");
+  const go = document.getElementById("btnGo");
+  if (rec) {
+    what.innerHTML = rec.app.emoji + ' <span class="em">' + rec.app.nm + "</span> — " +
+      (rec.next ? "'" + rec.next + "' " + rec.app.unitLabel + " 차례예요!" : "이어서 해요!");
+    go.onclick = () => gotoApp(rec.app, rec.next);
+  } else {
+    what.innerHTML = "🎉 네 가지 놀이를 모두 마쳤어요! 최고!";
+    go.onclick = () => gotoApp(APPS[0], null);
+  }
+  }
+  const list = document.getElementById("appList");
+  list.innerHTML = "";
+  APPS.forEach(app => {
+    const p = progressOf(curName, app);
+    const pct = Math.round(p.done / p.total * 100);
+    const row = document.createElement("div");
+    row.className = "app-row" + (p.done >= p.total ? " done-all" : "");
+    row.innerHTML = '<div class="emoji">' + app.emoji + '</div>' +
+      '<div class="info"><div class="nm">' + app.nm + (p.done >= p.total ? " 🎓" : "") + '</div>' +
+      '<div class="sub">' + p.done + " / " + p.total + " " + app.unitLabel + " 완료" +
+      (p.next ? " · 다음: " + p.next : "") + '</div>' +
+      '<div class="bar"><div style="width:' + pct + '%"></div></div></div>' +
+      '<div class="pct">' + pct + "%</div>";
+    row.addEventListener("click", () => gotoApp(app, null));
+    list.appendChild(row);
+    if (freeMode) {
+      // 🎈 자유 모드: 전 단원 칩 — 아무 단계나 골라 바로 시작 (완료=금색)
+      const d = loadStore(app.key);
+      let prog = {};
+      if (d && d.students) {
+        const st = Object.values(d.students).find(x => x.name === curName);
+        if (st) prog = st.progress || {};
+      }
+      const chips = document.createElement("div");
+      chips.className = "unit-chips";
+      (app.chips || app.order).forEach(item => {   // 단어카드는 낱말 106개 대신 분류(가~하) 칩
+        const done = app.chips
+          ? app.order.filter(w => w[0] === item).every(w => ((prog[w] || {}).stars || 0) >= 3)
+          : ((prog[item] || {}).stars || 0) >= 3;
+        const chip = document.createElement("button");
+        chip.className = "unit-chip" + (done ? " done" : "");
+        chip.textContent = item;
+        chip.addEventListener("click", e => {
+          e.stopPropagation();
+          gotoApp(app, item);
+        });
+        chips.appendChild(chip);
+      });
+      list.appendChild(chips);
+    }
+  });
+}
+document.getElementById("btnFree").addEventListener("click", () => {
+  freeMode = !freeMode;
+  document.getElementById("btnFree").classList.toggle("on", freeMode);
+  renderDash();
+});
+document.getElementById("btnBackStu").addEventListener("click", () => { show("scr-stu"); renderStudents(); });
+/* 앱에서 돌아왔을 때 최신 진도 반영 */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
+});
+window.addEventListener("pageshow", () => {
+  if (curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
+});
+renderStudents();
+</script>
+</body>
+</html>
