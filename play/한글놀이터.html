@@ -163,8 +163,10 @@
 
 <nav id="navbar">
   <div class="brand">🏡 한글 놀이터</div>
-  <button class="nav-btn" id="btnClass">🏫 교실</button>
-  <button class="nav-btn" id="btnManage">🧑‍🏫 학생 관리</button>
+  <!-- 학생 화면에는 🧑‍🏫 선생님 버튼만 — 교실·학생 관리·어휘 편집은 PIN 뒤 교사 화면에 -->
+  <button class="nav-btn" id="btnTeacher">🧑‍🏫 선생님</button>
+  <button class="nav-btn" id="btnClass" style="display:none">🏫 교실</button>
+  <button class="nav-btn" id="btnManage" style="display:none">🧑‍🏫 학생 관리</button>
   <button class="nav-btn" id="btnBackStu" style="display:none">👤 학생 바꾸기</button>
 </nav>
 
@@ -229,7 +231,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "2.1"; // 영문 교실 코드 허용(매일수학 호환)·PIN 8자·✏️어휘 편집=학생 관리로 이동 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "2.2"; // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -301,7 +303,7 @@ async function connectClass(code, pin) {
   const rows = await sb("classes?code=eq." + code + "&select=code,school,name,pin_hash", null, code);
   if (!rows || !rows.length) throw new Error("교실을 찾을 수 없어요. 코드를 확인해 주세요.");
   if (rows[0].pin_hash !== await sha256(pin)) throw new Error("PIN이 맞지 않아요.");
-  saveStore("hubClass", { code, school: rows[0].school, name: rows[0].name, last: 0 });
+  saveStore("hubClass", { code, school: rows[0].school, name: rows[0].name, pinHash: rows[0].pin_hash, last: 0 });   // pinHash=교사 화면 잠금용
 }
 /* ── 동기화: 당겨 와 합치고 밀어 올리기 ── */
 function readApp(key) { return loadStore(key) || { version: 1, lastStudent: null, students: {} }; }
@@ -343,6 +345,7 @@ async function syncNow(silent) {
           st.progress = mergeProg(st.progress || {}, ra.progress || {});
           if ((ra.stickers || []).length > (st.stickers || []).length) st.stickers = ra.stickers;
           if (!st.settings) st.settings = ra.settings || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+          st.dates = [...new Set([...(st.dates || []), ...(ra.dates || [])])].sort();   // 📅 달력 도장 합집합
         }
         saveStore(app.key, d);
       });
@@ -359,7 +362,7 @@ async function syncNow(silent) {
       APPS.forEach(app => {
         const d = readApp(app.key);
         const st = Object.values(d.students).find(x => x.name === s.name);
-        if (st) apps[app.key] = { progress: st.progress || {}, settings: st.settings || {}, stickers: st.stickers || [] };
+        if (st) apps[app.key] = { progress: st.progress || {}, settings: st.settings || {}, stickers: st.stickers || [], dates: st.dates || [] };
       });
       return { id: "s" + cls.code + "_" + btoa(unescape(encodeURIComponent(s.name))).replace(/=/g, ""),
                class_code: cls.code, name: s.name, avatar: s.avatar,
@@ -448,7 +451,7 @@ function renderClassModal() {
       clsMsg("만드는 중…", true);
       try {
         const code = await createClass(school, name, pin);
-        saveStore("hubClass", { code, school, name, last: 0 });
+        saveStore("hubClass", { code, school, name, pinHash: await sha256(pin), last: 0 });
         renderClassBtn(); renderClassModal(); syncNow(true);
       } catch (e) { clsMsg("만들기 실패: 인터넷을 확인해 주세요."); console.warn(e); }
     });
@@ -637,7 +640,19 @@ function show(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   document.getElementById("btnBackStu").style.display = id === "scr-stu" ? "none" : "";
-  document.getElementById("btnManage").style.display = id === "scr-manage" ? "none" : "";
+  // 교사용 버튼(교실)은 교사 화면(학생 관리)에서만, 선생님 진입 버튼은 학생 선택 화면에서만
+  document.getElementById("btnClass").style.display = id === "scr-manage" ? "" : "none";
+  document.getElementById("btnTeacher").style.display = id === "scr-stu" ? "" : "none";
+}
+/* 🧑‍🏫 교사 화면 진입: 교실 PIN이 있으면 확인(매일수학 문법) */
+async function teacherGate() {
+  const cls = hubClass();
+  if (cls && cls.pinHash) {
+    const pin = window.prompt("선생님 PIN을 입력하세요");
+    if (pin === null) return false;
+    if (await sha256(pin.trim()) !== cls.pinHash) { alert("PIN이 맞지 않아요."); return false; }
+  }
+  return true;
 }
 /* 학생 추가(선택 화면·관리 탭 공용): 이름 → 4앱 생성 → 사진 모달 */
 function addStudentFlow() {
@@ -730,6 +745,10 @@ function renderManage() {
   tb.appendChild(trEdit);
 }
 document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); });
+document.getElementById("btnTeacher").addEventListener("click", async () => {
+  if (!await teacherGate()) return;
+  renderManage(); show("scr-manage");
+});
 function renderStudents() {
   const grid = document.getElementById("stuGrid");
   grid.innerHTML = "";
