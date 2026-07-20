@@ -231,7 +231,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "2.6"; // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "2.7"; // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -757,6 +757,14 @@ function renderManage() {
   trEdit.querySelectorAll("button").forEach(b =>
     b.addEventListener("click", () => location.href = APPS[b.dataset.i].href + "?edit=1"));
   tb.appendChild(trEdit);
+  // 🔗 아이용 링크(가정 복습): 교실 초대 링크 복사 — 매일수학과 같은 문법
+  const trInv = document.createElement("tr");
+  trInv.innerHTML = '<td colspan="' + (APPS.length + 3) + '" style="text-align:left;padding:12px 14px">' +
+    '<b style="margin-right:8px">🔗 아이용 링크</b>' +
+    '<button id="mgInvite" style="padding:8px 14px;background:var(--accent-soft);color:var(--accent-strong);font-weight:800">복사해서 학부모에게 보내기</button>' +
+    '<small style="color:#78909c;margin-left:8px">아이는 링크로 들어와 자기 이름만 눌러요 · 기록은 교실로 자동 동기화</small></td>';
+  trInv.querySelector("#mgInvite").addEventListener("click", () => copyInvite());
+  tb.appendChild(trInv);
 }
 document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); syncNow(true); });   // 진입 시 원격 진도 당겨 오기(끝나면 자동 재렌더)
 document.getElementById("btnTeacher").addEventListener("click", async () => {
@@ -871,6 +879,38 @@ window.addEventListener("pageshow", () => {
   autoSync();
   if (curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
 });
+/* ── 🔗 아이용 링크(매일수학 초대 링크 문법): ?code=ABC123 로 열면 교실 자동 연결 ──
+   PIN 없이 연결하되 pin_hash는 저장 → 학부모 기기에서도 🧑‍🏫 교사 화면은 PIN으로 잠김 */
+function inviteUrl() {
+  const base = /^https?:/.test(location.protocol) && !/localhost|127\./.test(location.hostname)
+    ? location.origin + location.pathname.replace(/[^/]*$/, "")
+    : "https://iepnote.github.io/hangul/play/";   // file://·로컬 실행이면 공식 주소로 생성
+  return base + "?code=" + hubClass().code;
+}
+async function copyInvite() {
+  const cls = hubClass();
+  if (!cls) { alert("먼저 교사 화면의 🏫 교실에서 교실을 만들거나 연결해 주세요."); return; }
+  const url = inviteUrl();
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
+  window.prompt((ok ? "복사됐어요! " : "아래 링크를 길게 눌러 복사하세요. ") +
+    "카톡 등으로 학부모에게 보내 주세요.\n아이는 링크로 들어와 자기 이름만 누르면 되고, 기록은 교실로 자동 동기화됩니다.", url);
+}
+(async function () {
+  const q = new URLSearchParams(location.search);
+  const code = (q.get("code") || "").toUpperCase();
+  if (code) try { history.replaceState(null, "", location.pathname); } catch (e) {}   // 소비 후 URL 정리
+  if (/^[A-Z0-9]{6}$/.test(code) && (!hubClass() || hubClass().code !== code)) {
+    try {
+      const rows = await sb("classes?code=eq." + code + "&select=code,school,name,pin_hash", null, code);
+      if (rows && rows.length) {
+        saveStore("hubClass", { code, school: rows[0].school, name: rows[0].name, pinHash: rows[0].pin_hash, last: 0 });
+        renderClassBtn();
+        syncNow(true);   // 학생 명단·진도 당겨 오기(끝나면 학생 화면 자동 재렌더)
+      }
+    } catch (e) { console.warn("invite", e); }
+  }
+})();
 renderStudents();
 renderClassBtn();
 autoSync();   // 시작 시 1회(교실 연결 시)
