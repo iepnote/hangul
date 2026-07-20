@@ -231,7 +231,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "2.2"; // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "2.3"; // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -689,12 +689,22 @@ function deleteEverywhere(name) {
   remoteDelete(name);   // 교실 연결 시 원격에서도 삭제(실패 무시)
 }
 /* ── 학생 관리 탭: 학생 편집 + 진도 한눈에 ── */
+/* 마지막 학습일: 4앱 달력 도장(dates)의 최댓값 — 동기화 직후엔 원격 학습 기록도 포함 */
+function lastStudy(name) {
+  let last = "";
+  APPS.forEach(a => {
+    const d = loadStore(a.key);
+    const s = d && d.students && Object.values(d.students).find(x => x.name === name);
+    ((s && s.dates) || []).forEach(x => { if (x > last) last = x; });
+  });
+  return last;
+}
 function renderManage() {
   const tb = document.getElementById("mgTable");
   tb.innerHTML = "";
   const head = document.createElement("tr");
   head.innerHTML = "<th style='text-align:left;padding-left:12px'>학생</th>" +
-    APPS.map(a => "<th>" + a.emoji + "<br>" + a.nm + "</th>").join("") + "<th>관리</th>";
+    APPS.map(a => "<th>" + a.emoji + "<br>" + a.nm + "</th>").join("") + "<th>마지막 학습</th><th>관리</th>";
   tb.appendChild(head);
   allStudents().forEach(s => {
     const tr = document.createElement("tr");
@@ -707,6 +717,10 @@ function renderManage() {
       cells += '<td><div class="pct">' + pct + "%<small>" + p.done + "/" + p.total + "</small>" +
         '<div class="mini-bar"><div style="width:' + pct + '%"></div></div></div></td>';
     });
+    const ls = lastStudy(s.name);
+    const today = new Date(), tds = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    cells += '<td style="font-size:14px;color:' + (ls === tds ? "var(--accent-strong);font-weight:800" : "#78909c") + '">' +
+      (ls ? (ls === tds ? "오늘 💮" : ls.slice(5).replace("-", "/")) : "—") + "</td>";
     cells += "<td></td>";
     tr.innerHTML = cells;
     const td = tr.lastElementChild;
@@ -733,21 +747,22 @@ function renderManage() {
     tb.appendChild(tr);
   });
   const trAdd = document.createElement("tr");
-  trAdd.innerHTML = '<td colspan="' + (APPS.length + 2) + '"><button id="mgAdd" style="background:var(--accent-soft);color:var(--accent-strong);font-weight:800;padding:9px 22px">➕ 학생 추가</button></td>';
+  trAdd.innerHTML = '<td colspan="' + (APPS.length + 3) + '"><button id="mgAdd" style="background:var(--accent-soft);color:var(--accent-strong);font-weight:800;padding:9px 22px">➕ 학생 추가</button></td>';
   trAdd.querySelector("#mgAdd").addEventListener("click", addStudentFlow);
   tb.appendChild(trAdd);
   // ✏️ 어휘 편집(교사용): 앱 안 편집 화면으로 바로 이동 — 학생 화면에는 편집 버튼이 없다
   const trEdit = document.createElement("tr");
-  trEdit.innerHTML = '<td colspan="' + (APPS.length + 2) + '" style="text-align:left;padding:12px 14px"><b style="margin-right:8px">✏️ 어휘 편집</b>' +
+  trEdit.innerHTML = '<td colspan="' + (APPS.length + 3) + '" style="text-align:left;padding:12px 14px"><b style="margin-right:8px">✏️ 어휘 편집</b>' +
     APPS.map((a, i) => '<button data-i="' + i + '" style="margin:2px 4px;padding:8px 12px">' + a.emoji + " " + a.nm + '</button>').join("") + '</td>';
   trEdit.querySelectorAll("button").forEach(b =>
     b.addEventListener("click", () => location.href = APPS[b.dataset.i].href + "?edit=1"));
   tb.appendChild(trEdit);
 }
-document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); });
+document.getElementById("btnManage").addEventListener("click", () => { renderManage(); show("scr-manage"); syncNow(true); });   // 진입 시 원격 진도 당겨 오기(끝나면 자동 재렌더)
 document.getElementById("btnTeacher").addEventListener("click", async () => {
   if (!await teacherGate()) return;
   renderManage(); show("scr-manage");
+  syncNow(true);   // 진입 시 원격 진도 당겨 오기(끝나면 자동 재렌더)
 });
 function renderStudents() {
   const grid = document.getElementById("stuGrid");
