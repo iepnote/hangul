@@ -24,7 +24,7 @@
     background: #fff; border-bottom: 1px solid var(--line-c); flex-shrink: 0;
   }
   #navbar .brand { font-size: clamp(18px, 2.6vw, 26px); font-weight: 800; color: var(--accent-strong); margin-right: auto; }
-  #navbar .brand img { height: 1.5em; vertical-align: -0.4em; }
+  #navbar .brand img { height: 2.2em; vertical-align: -0.75em; }
   .appico { height: 1.25em; vertical-align: -0.25em; }
   #mgTable th img.appico { height: 28px; display: block; margin: 0 auto 2px; }
   .app-row .emoji img { height: clamp(30px, 5vh, 44px); display: block; }
@@ -235,7 +235,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "2.9"; // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "3.0"; // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
