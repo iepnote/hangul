@@ -235,7 +235,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "3.2"; // 달력은 학습 완료 화면으로 이동 // 📅 학습 달력(매일수학 이식) // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "3.3"; // 저장 실패 원인 표시 // 달력은 학습 완료 화면으로 이동 // 📅 학습 달력(매일수학 이식) // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -586,7 +586,15 @@ function loadStore(key) {
   try { return JSON.parse(localStorage.getItem(key)) || null; } catch (e) { return null; }
 }
 function saveStore(key, data) {
-  try { localStorage.setItem(key, JSON.stringify(data)); } catch (e) { alert("저장 공간이 부족해요."); }
+  try { localStorage.setItem(key, JSON.stringify(data)); }
+  catch (e) {
+    console.warn("저장 실패", key, e);
+    if (!saveStore._warned) {   // 세션당 1회만 — 어떤 항목이 실패했는지 알려줌
+      saveStore._warned = true;
+      alert("저장 공간이 부족해 '" + key + "' 저장에 실패했어요.
+교사 편집의 큰 그림이나 학생 사진을 줄이면 해결돼요.");
+    }
+  }
 }
 /* 4개 앱의 학생을 이름으로 합친다 */
 function allStudents() {
