@@ -99,6 +99,28 @@
   }
   .unit-chip.done { border-color: #FFB300; background: #FFF8E1; }
   .unit-chip:active { transform: translateY(2px); }
+  /* 📅 학습 달력(매일수학 이식) — 진도판 하단 카드 */
+  #calCard { background: #fff; border: 3px solid var(--choice-border); border-radius: 18px;
+    width: min(680px, 96%); margin: 0 auto 20px; padding: 14px 18px 18px; }
+  #calCard .cal-t { text-align: center; font-weight: 800; color: var(--accent-strong); font-size: clamp(16px, 2.2vw, 20px); }
+  #calCard .monthnav { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px 0 4px; }
+  #calCard .mtitle { font-size: clamp(15px, 2vw, 19px); font-weight: 800; min-width: 120px; text-align: center; }
+  #calCard .mbtn { border: none; cursor: pointer; color: #fff; border-radius: 12px; padding: 6px 14px;
+    font-size: clamp(13px, 1.7vw, 16px); font-weight: 700; }
+  #calCard .mbtn:active { transform: translateY(2px); }
+  #calCard .mbtn.mprev { background: #90A4AE; box-shadow: 0 3px 0 #607D8B; }
+  #calCard .mbtn.mnext { background: #43A047; box-shadow: 0 3px 0 #2E7D32; }
+  #calCard .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; max-width: 560px; margin: 6px auto 0; }
+  #calCard .cal-h { text-align: center; font-weight: 700; color: #fff; background: var(--accent-strong);
+    border-radius: 8px; padding: 4px 0; font-size: clamp(12px, 1.6vw, 15px); }
+  #calCard .cal-h.sun, #calCard .cal-h.sat { background: #EF5350; }
+  #calCard .cal-d { position: relative; aspect-ratio: 1; display: grid; place-items: center;
+    font-size: clamp(14px, 1.9vw, 18px); border-radius: 50%; color: #607D8B; }
+  #calCard .cal-d .dnum { position: relative; z-index: 1; }
+  #calCard .cal-d.done { font-weight: 800; color: #fff; }
+  #calCard .cal-d.done::after { content: ""; position: absolute; left: 50%; top: 50%; width: 88%; height: 88%;
+    transform: translate(-50%, -50%); background: #26A69A; border-radius: 50%; z-index: 0; }
+  #calCard .cal-d.today { outline: 3px solid var(--accent-strong); outline-offset: -2px; border-radius: 50%; font-weight: 900; }
   .home-footer { text-align: center; font-size: 11px; color: #9e9e9e; padding: 6px 12px 10px; flex-shrink: 0; }
   .home-footer a { color: inherit; }
 
@@ -193,6 +215,7 @@
       <button id="btnGo">▶ 이어서 하기</button>
     </div>
     <div id="appList"></div>
+    <div id="calCard" style="display:none"></div>
   </div>
 
   <!-- 학생 관리: 학생 편집 + 진도 한눈에 -->
@@ -235,7 +258,7 @@
 
 <script>
 "use strict";
-const HUB_VERSION = "3.0"; // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "3.1"; // 📅 학습 달력(매일수학 이식) // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -695,6 +718,48 @@ function deleteEverywhere(name) {
   remoteDelete(name);   // 교실 연결 시 원격에서도 삭제(실패 무시)
 }
 /* ── 학생 관리 탭: 학생 편집 + 진도 한눈에 ── */
+/* 📅 학습 달력(매일수학 renderCalendar 이식): 4앱 dates 합집합, 달 이동 */
+let calY = null, calM = null;
+function datesOf(name) {
+  const set = new Set();
+  APPS.forEach(a => {
+    const d = loadStore(a.key);
+    const st = d && d.students && Object.values(d.students).find(x => x.name === name);
+    ((st && st.dates) || []).forEach(x => set.add(x));
+  });
+  return set;
+}
+function renderHubCal(keepMonth) {
+  const box = document.getElementById("calCard");
+  if (!curName) { box.style.display = "none"; return; }
+  box.style.display = "";
+  if (!keepMonth || calY === null) { const t = new Date(); calY = t.getFullYear(); calM = t.getMonth(); }
+  const now = new Date();
+  const atCur = calY > now.getFullYear() || (calY === now.getFullYear() && calM >= now.getMonth());
+  const done = datesOf(curName);
+  const y = calY, m = calM;
+  const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+  const t2 = n => String(n).padStart(2, "0");
+  const tStr = now.getFullYear() + "-" + t2(now.getMonth() + 1) + "-" + t2(now.getDate());
+  let cells = ["일", "월", "화", "수", "목", "금", "토"].map((h, i) =>
+    '<div class="cal-h ' + (i === 0 ? "sun" : i === 6 ? "sat" : "") + '">' + h + "</div>").join("");
+  for (let i = 0; i < first; i++) cells += "<div></div>";
+  let cnt = 0;
+  for (let d = 1; d <= days; d++) {
+    const ds = y + "-" + t2(m + 1) + "-" + t2(d);
+    if (done.has(ds)) cnt++;
+    cells += '<div class="cal-d' + (done.has(ds) ? " done" : "") + (ds === tStr ? " today" : "") + '"><span class="dnum">' + d + "</span></div>";
+  }
+  box.innerHTML = '<div class="cal-t">📅 학습 달력 — 이번 달 ' + cnt + '일 공부했어요!</div>' +
+    '<div class="monthnav"><button class="mbtn mprev" id="calPrev">◀ 지난달</button><span class="mtitle">' + y + "년 " + (m + 1) + "월</span>" +
+    (atCur ? '<span style="width:96px"></span>' : '<button class="mbtn mnext" id="calNext">다음달 ▶</button>') + "</div>" +
+    '<div class="cal-grid">' + cells + "</div>";
+  box.querySelector("#calPrev").addEventListener("click", () => changeHubMonth(-1));
+  const nx = box.querySelector("#calNext");
+  if (nx) nx.addEventListener("click", () => changeHubMonth(1));
+}
+function changeHubMonth(d) { const dt = new Date(calY, calM + d, 1); calY = dt.getFullYear(); calM = dt.getMonth(); renderHubCal(true); }
+
 /* 마지막 학습일: 4앱 달력 도장(dates)의 최댓값 — 동기화 직후엔 원격 학습 기록도 포함 */
 function lastStudy(name) {
   let last = "";
@@ -863,6 +928,7 @@ function renderDash() {
       list.appendChild(chips);
     }
   });
+  renderHubCal();   // 📅 학습 달력(손님은 숨김)
 }
 document.getElementById("btnFree").addEventListener("click", () => {
   freeMode = !freeMode;
