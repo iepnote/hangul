@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>한글 놀이터 — 우리 반 한글 학습 홈</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
-    --page-bg: #E9ECEF; --ink: #2D3436; --ink-soft: #777;
+    --page-bg: #E9ECEF; --ink: #2D3436; --ink-soft: #616161;
     --accent: #64B5F6; --accent-strong: #1E88E5; --accent-soft: #E3F2FD;
-    --choice-bg: #F2FAFF; --choice-border: #90CAF9; --line-c: #dce2e8;
+    --choice-bg: #F2FAFF; --choice-border: #1976D2; --line-c: #dce2e8;
   }
   html, body { height: 100%; }
   body {
@@ -23,20 +23,23 @@
     padding: 10px clamp(10px, 1.5vw, 20px);
     background: #fff; border-bottom: 1px solid var(--line-c); flex-shrink: 0;
   }
-  #navbar .brand { font-size: clamp(18px, 2.6vw, 26px); font-weight: 800; color: var(--accent-strong); margin-right: auto; }
+  #navbar .brand { font-size: clamp(18px, 2.6vw, 26px); font-weight: 800; color: #1565C0; margin-right: auto; }   /* 18px일 때도 4.5:1 이상 */
   #navbar .brand img { height: 2.2em; vertical-align: -0.75em; }
   .appico { height: 1.25em; vertical-align: -0.25em; }
   #mgTable th img.appico { height: 28px; display: block; margin: 0 auto 2px; }
   .app-row .emoji img { height: clamp(30px, 5vh, 44px); display: block; }
   .nav-btn {
     background: var(--accent-soft); border: none; border-radius: 999px;
-    padding: 9px 16px; cursor: pointer; font-size: clamp(14px, 1.8vw, 18px); font-weight: bold; color: var(--accent-strong);
+    padding: 9px 16px; cursor: pointer; font-size: clamp(14px, 1.8vw, 18px); font-weight: bold; color: #1565C0; min-height: 44px;
   }
   #screens { flex: 1; min-height: 0; padding: clamp(8px, 1.5vw, 16px); overflow-y: auto; }
   .screen { display: none; height: 100%; flex-direction: column; max-width: 1200px; margin: 0 auto; }
   .screen.active { display: flex; }
   .title { font-size: clamp(20px, 3vw, 30px); font-weight: 800; color: var(--accent-strong); text-align: center; padding: 14px 0 4px; }
 
+  /* 카드 = <button> (키보드 도달): 버튼 기본 스타일 제거, 기존 외형 유지 */
+  .stu-card, .app-row { appearance: none; -webkit-appearance: none; font: inherit; color: inherit; text-align: left; }
+  .stu-card .face, .stu-card .name, .app-row .info, .app-row .nm, .app-row .sub, .app-row .bar, .bar > span { display: block; }
   /* 학생 선택 */
   #stuGrid {
     flex: 1; display: flex; flex-wrap: wrap; gap: clamp(14px, 2.5vw, 30px);
@@ -55,8 +58,8 @@
   }
   #dashName img { width: 48px; height: 48px; }
   .stu-card .name { font-size: clamp(22px, 3vw, 34px); font-weight: bold; color: var(--accent-strong); margin-top: 4px; }
-  .stu-card.add { border-style: dashed; border-color: #b0bec5; box-shadow: none; background: #fafafa; }
-  .stu-card.add .face, .stu-card.add .name { color: #90a4ae; }
+  .stu-card.add { border-style: dashed; border-color: #607D8B; box-shadow: none; background: #fafafa; }
+  .stu-card.add .face, .stu-card.add .name { color: #546E7A; }
 
   /* 진도판 */
   #dashName { text-align: center; font-size: clamp(22px, 3.4vw, 34px); font-weight: 800; padding: 6px 0; }
@@ -76,7 +79,7 @@
   #btnGo:active { transform: translateY(3px); }
   #appList { display: flex; flex-direction: column; gap: 10px; padding: 8px 0 20px; width: min(680px, 96%); margin: 0 auto; }
   .app-row {
-    display: flex; align-items: center; gap: 14px;
+    display: flex; align-items: center; gap: 14px; width: 100%;
     background: #fff; border: 3px solid var(--choice-border); border-radius: 18px;
     padding: 12px 16px; cursor: pointer; transition: .15s;
   }
@@ -87,7 +90,7 @@
   .app-row .nm { font-size: clamp(17px, 2.2vw, 22px); font-weight: 800; }
   .app-row .sub { font-size: clamp(12px, 1.5vw, 15px); color: var(--ink-soft); font-weight: bold; margin-top: 2px; }
   .bar { height: 12px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; margin-top: 6px; }
-  .bar > div { height: 100%; background: var(--accent-strong); border-radius: 999px; transition: width .4s; }
+  .bar > span { height: 100%; background: var(--accent-strong); border-radius: 999px; transition: width .4s; }
   .app-row .pct { font-size: clamp(15px, 2vw, 19px); font-weight: 800; color: var(--accent-strong); min-width: 74px; text-align: right; }
   /* 선생님 모드: 앱별 전 단원 칩 */
   .nav-btn.on { background: var(--accent-strong); color: #fff; }
@@ -95,12 +98,12 @@
   .unit-chip {
     font-size: clamp(14px, 1.8vw, 18px); font-weight: bold;
     border: 2px solid var(--choice-border); background: #fff; color: var(--ink);
-    border-radius: 12px; padding: 6px 12px; cursor: pointer;
+    border-radius: 12px; padding: 6px 12px; cursor: pointer; min-height: 44px; min-width: 44px;
   }
   .unit-chip.done { border-color: #FFB300; background: #FFF8E1; }
   .unit-chip:active { transform: translateY(2px); }
-  .home-footer { text-align: center; font-size: 11px; color: #9e9e9e; padding: 6px 12px 10px; flex-shrink: 0; }
-  .home-footer a { color: inherit; }
+  .home-footer { text-align: center; font-size: 11px; color: #5F6368; padding: 2px 12px 4px; flex-shrink: 0; }
+  .home-footer a { color: inherit; display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; vertical-align: middle; }
 
   /* 학생 관리 */
   #mgWrap { overflow: auto; background: #fff; border: 3px solid var(--choice-border); border-radius: 18px; margin: 8px auto 16px; width: min(880px, 98%); }
@@ -114,14 +117,14 @@
   #mgTable .pct small { display: block; font-weight: normal; color: var(--ink-soft); }
   #mgTable .mini-bar { height: 7px; background: var(--accent-soft); border-radius: 999px; overflow: hidden; margin-top: 4px; }
   #mgTable .mini-bar > div { height: 100%; background: var(--accent-strong); }
-  #mgTable button { border: none; background: #f0f2f5; border-radius: 10px; padding: 7px 9px; margin: 0 2px; cursor: pointer; font-size: 16px; }
+  #mgTable button { border: none; background: #f0f2f5; border-radius: 10px; padding: 7px 9px; margin: 0 2px; cursor: pointer; font-size: 16px; min-height: 44px; min-width: 44px; }
   #mgTable button.del { background: #ffebee; }
 
   /* 🏫 교실(동기화) 모달 */
   #classModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 55; align-items: center; justify-content: center; }
   #classModal.open { display: flex; }
   #clsBox { background: #fff; border-radius: 22px; padding: 20px 24px; width: min(460px, 92vw); max-height: 88vh; overflow-y: auto; }
-  #clsBox h3 { font-size: 20px; color: var(--accent-strong); text-align: center; }
+  #clsBox h2 { font-size: 20px; color: var(--accent-strong); text-align: center; }
   #clsBox .sec { border: 2px solid var(--line-c); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
   #clsBox .sec .st { font-weight: 800; margin-bottom: 8px; }
   #clsBox input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 9px 10px; margin-top: 6px; border: 2px solid var(--choice-border); border-radius: 10px; }
@@ -162,6 +165,24 @@
   #pmCancel, #pmClear { background: #f0f2f5; border: none; border-radius: 14px; padding: 10px 18px; font-size: 15px; font-weight: bold; cursor: pointer; }
   #pmClear { background: #ffebee; }
 
+  /* 앱 내 대화상자(prompt/alert/confirm 대체) */
+  #appModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; align-items: center; justify-content: center; }
+  #appModal.open { display: flex; }
+  #amBox { background: #fff; border-radius: 22px; padding: 22px 24px; width: min(440px, 92vw); }
+  #amMsg { font-size: 18px; font-weight: bold; white-space: pre-line; line-height: 1.5; text-align: center; }
+  #amInput { width: 100%; box-sizing: border-box; font-size: 18px; padding: 10px 12px; margin-top: 12px; border: 2px solid var(--choice-border); border-radius: 10px; min-height: 44px; }
+  #appModal .act { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+  #amOk { background: var(--accent-strong); color: #fff; border: none; border-radius: 14px; padding: 11px 30px; font-size: 17px; font-weight: 800; cursor: pointer; min-height: 44px; }
+  #amCancel { background: #f0f2f5; border: none; border-radius: 14px; padding: 11px 20px; font-size: 16px; font-weight: bold; cursor: pointer; min-height: 44px; }
+
+  /* 앱 여는 중 오버레이: 큰 앱 파일(8~13MB)이 내려오는 동안 화면이 멈춘 듯 보이는 것 방지 */
+  #bootSplash { display: none; position: fixed; inset: 0; z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: var(--page-bg); color: #1565C0; }
+  #bootSplash.open { display: flex; }
+  #bootSplash .sp { width: 56px; height: 56px; border: 6px solid #BBDEFB; border-top-color: #1565C0; border-radius: 50%; animation: bootSpin .9s linear infinite; }
+  #bootSplash .tx { font-size: clamp(20px, 3vw, 30px); font-weight: 800; }
+  #bootSplash .sb { font-size: clamp(14px, 1.8vw, 18px); color: var(--ink-soft); font-weight: bold; }
+  @keyframes bootSpin { to { transform: rotate(360deg); } }
+
   /* 📱 좁은 화면(핸드폰): 세로 스크롤 허용 */
   @media (max-width: 640px), (max-height: 520px) {
     html, body { height: auto; min-height: 100%; }
@@ -177,7 +198,7 @@
 <body>
 
 <nav id="navbar">
-  <div class="brand"><img id="brandIco" alt=""> 한글 놀이터</div>
+  <h1 class="brand"><img id="brandIco" alt=""> 한글 놀이터</h1>
   <!-- 학생 화면에는 🧑‍🏫 선생님 버튼만 — 교실·학생 관리·어휘 편집은 PIN 뒤 교사 화면에 -->
   <button class="nav-btn" id="btnTeacher">🏫 선생님</button>
   <button class="nav-btn" id="btnClass" style="display:none">🔗 교실</button>
@@ -185,7 +206,7 @@
   <button class="nav-btn" id="btnBackStu" style="display:none">👤 학생 바꾸기</button>
 </nav>
 
-<div id="screens">
+<main id="screens">
   <!-- 학생 선택 -->
   <div class="screen active" id="scr-stu">
     <div class="title">누구랑 공부할까요?</div>
@@ -211,25 +232,25 @@
     <div class="title">🧑‍🏫 학생 관리</div>
     <div id="mgWrap"><table id="mgTable"></table></div>
   </div>
-</div>
+</main>
 
 <!-- 🏫 교실 모달: 교실 코드로 여러 기기에서 학생·진도·어휘 동기화 (매일수학과 같은 교실 코드) -->
-<div id="classModal"><div id="clsBox">
-  <h3>🏫 교실 연결</h3>
+<div id="classModal" role="dialog" aria-modal="true" aria-labelledby="classModalTitle"><div id="clsBox">
+  <h2 id="classModalTitle">🏫 교실 연결</h2>
   <div id="clsBody"></div>
   <div id="clsMsg"></div>
   <button id="clsClose">닫기</button>
 </div></div>
 
 <!-- 학생 사진 모달: 파일 올리기 · 붙여넣기(Ctrl+V) · 배경 투명 옵션 -->
-<div id="photoModal">
+<div id="photoModal" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
   <div id="pmBox">
-    <div id="pmTitle">📷 학생 사진</div>
+    <h2 id="pmTitle">📷 학생 사진</h2>
     <div id="pmPreview">🙂</div>
     <div class="row">
       <button id="pmFile">📁 파일 올리기</button>
       <button id="pmPaste">📋 붙여넣기</button>
-      <label class="chk"><input type="checkbox" id="pmTransparent"> 배경 투명</label>
+      <label class="chk" for="pmTransparent"><input type="checkbox" id="pmTransparent"> 배경 투명</label>
     </div>
     <div id="pmHint">복사한 사진이 있으면 Ctrl+V 를 눌러도 돼요</div>
     <div class="act">
@@ -240,13 +261,27 @@
   </div>
 </div>
 
+<!-- 앱 내 대화상자: prompt/alert/confirm 대체 (네이티브 창은 페이지 정지·확대 불가·standalone에서 불안정) -->
+<div id="appModal" role="dialog" aria-modal="true" aria-labelledby="amMsg">
+  <div id="amBox">
+    <div id="amMsg"></div>
+    <input id="amInput" aria-label="입력" autocomplete="off">
+    <div class="act"><button id="amOk" type="button">확인</button><button id="amCancel" type="button">취소</button></div>
+  </div>
+</div>
+
+<!-- 앱 여는 중 오버레이 -->
+<div id="bootSplash" role="status" aria-live="polite">
+  <div class="sp"></div><div class="tx" id="bootTx"></div><div class="sb">잠깐만요, 놀이를 열고 있어요…</div>
+</div>
+
 <div class="home-footer">
   by 민예원선생님 <a href="mailto:iepnote@gmail.com">📧 iepnote@gmail.com</a> · 그림상징 출처: ARASAAC (arasaac.org) · CC BY-NC-SA · 어휘 목록: 국립국어원 「국어 기초 어휘 선정 및 어휘 등급화」 연구 보고서(인공지능 학습용, <a href="https://www.korean.go.kr/front/reportData/reportDataView.do?mn_id=45&amp;report_seq=1160" target="_blank">korean.go.kr</a>)
 </div>
 
 <script>
 "use strict";
-const HUB_VERSION = "3.8"; // 받침 25단원(ㅋ·ㄳ·ㅀ·ㄾ 추가) // 네비 활동 아이콘 3번(배경 투명) // // 아이콘 통일(선생님 🏫·교실 🔗·학생 관리 👥) // // 📱핸드폰 세로 스크롤 허용 // 구문 오류 수정(런처 멈춤) // 저장 실패 원인 표시 // 달력은 학습 완료 화면으로 이동 // 📅 학습 달력(매일수학 이식) // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
+const HUB_VERSION = "3.9"; // 접근성 개선(카드 button화·앱 내 모달·dialog/Escape·테두리 대비·progressbar/status·h1/main) + 앱 여는 중 오버레이 // 받침 25단원(ㅋ·ㄳ·ㅀ·ㄾ 추가) // 네비 활동 아이콘 3번(배경 투명) // // 아이콘 통일(선생님 🏫·교실 🔗·학생 관리 👥) // // 📱핸드폰 세로 스크롤 허용 // 구문 오류 수정(런처 멈춤) // 저장 실패 원인 표시 // 달력은 학습 완료 화면으로 이동 // 📅 학습 달력(매일수학 이식) // 타이틀 아이콘 확대 // 활동 아이콘 v2(라벨 포함) // 활동 아이콘 이미지 // 아이용 링크(?code= 초대) // 받침 21단원 // 받침 홑→쌍→겹 // 받침 2단계 순서 동기화 // 학생 관리에 마지막 학습일+진입 시 원격 동기화 // 교사/학생 화면 분리(🧑‍🏫선생님 버튼+PIN 게이트)·📅달력 도장 동기화 // 🧑‍🏫 학생 관리 탭(학생 편집+진도 한눈에)·사진 모달(파일/붙여넣기/배경 투명)
 
 /* 학습 위계 순서(추천용) — 각 앱의 커리큘럼 항목 목록(항목=별3이면 완료) */
 const JAMO_ORDER = ["ㅏ","ㅓ","ㅗ","ㅜ","ㅡ","ㅣ","ㄱ","ㄴ","ㄷ","ㄹ","ㅁ","ㅂ","ㅅ","ㅈ","ㅎ","ㅇ","ㅋ","ㅌ","ㅍ","ㅊ","ㅑ","ㅕ","ㅛ","ㅠ"];
@@ -476,9 +511,9 @@ function renderClassModal() {
 }
 document.getElementById("btnClass").addEventListener("click", () => {
   renderClassModal();
-  document.getElementById("classModal").classList.add("open");
+  openModal(document.getElementById("classModal"));
 });
-document.getElementById("clsClose").addEventListener("click", () => document.getElementById("classModal").classList.remove("open"));
+document.getElementById("clsClose").addEventListener("click", () => closeModal(document.getElementById("classModal")));
 
 /* ── 사진 모달: 파일·붙여넣기(Ctrl+V)·배경 투명 옵션 ── */
 let pmName = null, pmSrcImg = null, pmResult = null;
@@ -491,9 +526,9 @@ function openPhotoModal(name) {
   const pv = document.getElementById("pmPreview");
   const old = photos()[name];
   pv.innerHTML = old ? '<img src="' + old + '" alt="">' : "🙂";
-  document.getElementById("photoModal").classList.add("open");
+  openModal(document.getElementById("photoModal"));
 }
-function pmClose() { document.getElementById("photoModal").classList.remove("open"); pmName = null; }
+function pmClose() { closeModal(document.getElementById("photoModal")); pmName = null; }
 function pmLoad(srcUrl) {
   const img = new Image();
   img.onload = () => { pmSrcImg = img; pmProcess(); };
@@ -554,8 +589,8 @@ document.getElementById("pmPaste").addEventListener("click", async () => {
       const t = it.types.find(x => x.startsWith("image/"));
       if (t) { pmLoad(URL.createObjectURL(await it.getType(t))); return; }
     }
-    alert("복사된 사진이 없어요. 사진을 복사한 뒤 다시 눌러 주세요.");
-  } catch (e) { alert("붙여넣기가 안 되면 Ctrl+V 를 눌러 보세요."); }
+    appAlert("복사된 사진이 없어요. 사진을 복사한 뒤 다시 눌러 주세요.");
+  } catch (e) { appAlert("붙여넣기가 안 되면 Ctrl+V 를 눌러 보세요."); }
 });
 document.addEventListener("paste", e => {
   if (!document.getElementById("photoModal").classList.contains("open")) return;
@@ -590,8 +625,8 @@ function ensureStudent(name, app) {
 }
 function gotoApp(app, unit) {
   if (curName) ensureStudent(curName, app);
-  location.href = app.href + (curName ? "?s=" + encodeURIComponent(curName) : "?guest=1") +
-    (unit ? "&u=" + encodeURIComponent(unit) : "");
+  navTo(app.href + (curName ? "?s=" + encodeURIComponent(curName) : "?guest=1") +
+    (unit ? "&u=" + encodeURIComponent(unit) : ""), app.emoji + " " + app.nm);
 }
 function loadStore(key) {
   try { return JSON.parse(localStorage.getItem(key)) || null; } catch (e) { return null; }
@@ -602,7 +637,7 @@ function saveStore(key, data) {
     console.warn("저장 실패", key, e);
     if (!saveStore._warned) {   // 세션당 1회만 — 어떤 항목이 실패했는지 알려줌
       saveStore._warned = true;
-      alert("저장 공간이 부족해 '" + key + "' 저장에 실패했어요.\n교사 편집의 큰 그림이나 학생 사진을 줄이면 해결돼요.");
+      appAlert("저장 공간이 부족해 '" + key + "' 저장에 실패했어요.\n교사 편집의 큰 그림이나 학생 사진을 줄이면 해결돼요.");
     }
   }
 }
@@ -657,6 +692,87 @@ function recommend(name) {
   return null;   // 전부 완료!
 }
 
+/* ── 접근성 모달(공통): dialog 시맨틱 · 첫 요소 포커스 · 닫으면 원위치 복귀 · Escape · Tab 순환 ── */
+let lastFocus = null;
+const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+function focusables(el) { return [...el.querySelectorAll(FOCUSABLE)].filter(x => x.offsetParent !== null); }
+function openModal(el) {
+  lastFocus = document.activeElement;
+  el.classList.add("open");
+  const f = focusables(el)[0];
+  if (f) f.focus();
+}
+function closeModal(el) {
+  el.classList.remove("open");
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+  lastFocus = null;
+}
+function openModalEl() { return document.querySelector("#appModal.open, #classModal.open, #photoModal.open"); }
+function dismissModal(m) {
+  if (m.id === "appModal") amFinish(null);
+  else if (m.id === "photoModal") pmClose();
+  else closeModal(m);
+}
+document.addEventListener("keydown", e => {
+  const m = openModalEl();
+  if (!m) return;
+  if (e.key === "Escape") { e.preventDefault(); dismissModal(m); return; }
+  if (e.key === "Tab") {   // focus trap
+    const list = focusables(m);
+    if (!list.length) { e.preventDefault(); return; }
+    const first = list[0], last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+/* prompt/alert/confirm 대체 — Promise 반환(취소·Escape=null/false) */
+let amResolve = null;
+function amFinish(v) {
+  const m = document.getElementById("appModal");
+  if (!m.classList.contains("open")) return;
+  closeModal(m);
+  const r = amResolve; amResolve = null;
+  if (r) r(v);
+}
+function appDialog(msg, opt) {
+  return new Promise(res => {
+    if (amResolve) amResolve(null);   // 겹치면 이전 것은 취소 처리
+    amResolve = res;
+    const m = document.getElementById("appModal");
+    const inp = document.getElementById("amInput");
+    document.getElementById("amMsg").textContent = msg;
+    const withInput = opt.mode === "prompt";
+    inp.style.display = withInput ? "" : "none";
+    inp.type = opt.type || "text";
+    if (opt.inputmode) inp.setAttribute("inputmode", opt.inputmode); else inp.removeAttribute("inputmode");
+    inp.value = withInput ? (opt.value || "") : "";
+    document.getElementById("amCancel").style.display = opt.mode === "alert" ? "none" : "";
+    openModal(m);
+    if (withInput) { inp.focus(); inp.select(); }
+  });
+}
+function appPrompt(msg, value, opt) { return appDialog(msg, Object.assign({ mode: "prompt", value: value || "" }, opt || {})); }
+function appConfirm(msg) { return appDialog(msg, { mode: "confirm" }); }
+function appAlert(msg) { return appDialog(msg, { mode: "alert" }); }
+document.getElementById("amOk").addEventListener("click", () => {
+  const inp = document.getElementById("amInput");
+  amFinish(inp.style.display === "none" ? true : inp.value);
+});
+document.getElementById("amCancel").addEventListener("click", () =>
+  amFinish(document.getElementById("amInput").style.display === "none" ? false : null));
+document.getElementById("amInput").addEventListener("keydown", e => { if (e.key === "Enter" || e.keyCode === 13) { e.preventDefault(); amFinish(e.target.value); } });
+
+/* ── 앱 여는 중 오버레이: 다음 페이지가 그려질 때까지 현재 화면이 멈춘 듯 보이는 것 방지 ── */
+function navTo(url, name) {
+  document.getElementById("bootTx").textContent = name || "";
+  document.getElementById("bootSplash").classList.add("open");
+  let done = false;
+  const go = () => { if (done) return; done = true; location.href = url; };
+  requestAnimationFrame(() => requestAnimationFrame(go));   // 오버레이가 한 프레임 그려진 뒤 이동
+  setTimeout(go, 150);                                     // 탭이 보이지 않아 rAF가 멈춰도 이동은 보장
+}
+function bootHide() { document.getElementById("bootSplash").classList.remove("open"); }
+
 /* ── 화면 ── */
 let curName = null;
 let freeMode = false;
@@ -672,15 +788,15 @@ function show(id) {
 async function teacherGate() {
   const cls = hubClass();
   if (cls && cls.pinHash) {
-    const pin = window.prompt("선생님 PIN을 입력하세요");
+    const pin = await appPrompt("선생님 PIN을 입력하세요", "", { type: "password", inputmode: "numeric" });
     if (pin === null) return false;
-    if (await sha256(pin.trim()) !== cls.pinHash) { alert("PIN이 맞지 않아요."); return false; }
+    if (await sha256(pin.trim()) !== cls.pinHash) { await appAlert("PIN이 맞지 않아요."); return false; }
   }
   return true;
 }
 /* 학생 추가(선택 화면·관리 탭 공용): 이름 → 4앱 생성 → 사진 모달 */
-function addStudentFlow() {
-  const n = (window.prompt("학생 이름을 입력하세요\n(4개 앱에 한 번에 만들어져요)") || "").trim();
+async function addStudentFlow() {
+  const n = ((await appPrompt("학생 이름을 입력하세요\n(4개 앱에 한 번에 만들어져요)")) || "").trim();
   if (!n) return;
   addStudentEverywhere(n);
   renderStudents(); renderManage();
@@ -739,7 +855,7 @@ function renderManage() {
       const p = progressOf(s.name, app);
       const pct = Math.round(p.done / p.total * 100);
       cells += '<td><div class="pct">' + pct + "%<small>" + p.done + "/" + p.total + "</small>" +
-        '<div class="mini-bar"><div style="width:' + pct + '%"></div></div></div></td>';
+        '<div class="mini-bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + app.nm + ' 진행률"><div style="width:' + pct + '%"></div></div></div></td>';
     });
     const ls = lastStudy(s.name);
     const today = new Date(), tds = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
@@ -753,17 +869,17 @@ function renderManage() {
     bPhoto.addEventListener("click", () => openPhotoModal(s.name));
     const bName = document.createElement("button");
     bName.textContent = "✏️"; bName.title = "이름 바꾸기";
-    bName.addEventListener("click", () => {
-      const n = (window.prompt("새 이름", s.name) || "").trim();
+    bName.addEventListener("click", async () => {
+      const n = ((await appPrompt("새 이름", s.name)) || "").trim();
       if (!n || n === s.name) return;
-      if (allStudents().some(x => x.name === n)) { alert("이미 있는 이름이에요."); return; }
+      if (allStudents().some(x => x.name === n)) { appAlert("이미 있는 이름이에요."); return; }
       renameEverywhere(s.name, n);
       renderManage(); renderStudents();
     });
     const bDel = document.createElement("button");
     bDel.textContent = "🗑️"; bDel.className = "del"; bDel.title = "삭제";
-    bDel.addEventListener("click", () => {
-      if (!confirm("'" + s.name + "' 학생을 4개 앱에서 모두 삭제할까요?\n(진도·별·스티커가 지워져요)")) return;
+    bDel.addEventListener("click", async () => {
+      if (!await appConfirm("'" + s.name + "' 학생을 4개 앱에서 모두 삭제할까요?\n(진도·별·스티커가 지워져요)")) return;
       deleteEverywhere(s.name);
       renderManage(); renderStudents();
     });
@@ -779,7 +895,7 @@ function renderManage() {
   trEdit.innerHTML = '<td colspan="' + (APPS.length + 3) + '" style="text-align:left;padding:12px 14px"><b style="margin-right:8px">✏️ 어휘 편집</b>' +
     APPS.map((a, i) => '<button data-i="' + i + '" style="margin:2px 4px;padding:8px 12px">' + icoHTML(a) + " " + a.nm + '</button>').join("") + '</td>';
   trEdit.querySelectorAll("button").forEach(b =>
-    b.addEventListener("click", () => location.href = APPS[b.dataset.i].href + "?edit=1"));
+    b.addEventListener("click", () => navTo(APPS[b.dataset.i].href + "?edit=1", "✏️ " + APPS[b.dataset.i].nm + " 어휘 편집")));
   tb.appendChild(trEdit);
   // 🔗 아이용 링크(가정 복습): 교실 초대 링크 복사 — 매일수학과 같은 문법
   const trInv = document.createElement("tr");
@@ -800,22 +916,27 @@ function renderStudents() {
   const grid = document.getElementById("stuGrid");
   grid.innerHTML = "";
   allStudents().forEach(s => {
-    const c = document.createElement("div");
+    const c = document.createElement("button");
+    c.type = "button";
     c.className = "stu-card";
-    c.innerHTML = '<div class="face">' + faceHTML(s) + '</div><div class="name">' + s.name + "</div>";
+    c.innerHTML = '<span class="face">' + faceHTML(s) + '</span><span class="name">' + s.name + "</span>";
     c.addEventListener("click", () => { curName = s.name; freeMode = false; renderDash(); show("scr-dash"); });
     grid.appendChild(c);
   });
-  const add = document.createElement("div");
+  const add = document.createElement("button");
+  add.type = "button";
   add.className = "stu-card add";
-  add.innerHTML = '<div class="face">➕</div><div class="name">학생 추가</div>';
+  add.setAttribute("aria-label", "학생 추가");
+  add.innerHTML = '<span class="face" aria-hidden="true">➕</span><span class="name">학생 추가</span>';
   add.addEventListener("click", addStudentFlow);
   grid.appendChild(add);
   // 🎈 손님 자유 모드: 학생 정보 없이 아무 단계나 놀기(기록 저장 안 됨)
-  const guest = document.createElement("div");
+  const guest = document.createElement("button");
+  guest.type = "button";
   guest.className = "stu-card add";
-  guest.style.borderColor = "var(--accent)";
-  guest.innerHTML = '<div class="face">🎈</div><div class="name" style="color:var(--accent-strong)">자유 모드</div>';
+  guest.setAttribute("aria-label", "자유 모드로 시작하기");
+  guest.style.borderColor = "#1976D2";
+  guest.innerHTML = '<span class="face" aria-hidden="true">🎈</span><span class="name" style="color:#1565C0">자유 모드</span>';
   guest.addEventListener("click", () => { curName = null; freeMode = true; renderDash(); show("scr-dash"); });
   grid.appendChild(guest);
 }
@@ -845,14 +966,16 @@ function renderDash() {
   APPS.forEach(app => {
     const p = progressOf(curName, app);
     const pct = Math.round(p.done / p.total * 100);
-    const row = document.createElement("div");
+    const row = document.createElement("button");
+    row.type = "button";
     row.className = "app-row" + (p.done >= p.total ? " done-all" : "");
-    row.innerHTML = '<div class="emoji">' + icoHTML(app) + '</div>' +
-      '<div class="info"><div class="nm">' + app.nm + (p.done >= p.total ? " 🎓" : "") + '</div>' +
-      '<div class="sub">' + p.done + " / " + p.total + " " + app.unitLabel + " 완료" +
-      (p.next ? " · 다음: " + p.next : "") + '</div>' +
-      '<div class="bar"><div style="width:' + pct + '%"></div></div></div>' +
-      '<div class="pct">' + pct + "%</div>";
+    row.innerHTML = '<span class="emoji">' + icoHTML(app) + '</span>' +
+      '<span class="info"><span class="nm">' + app.nm + (p.done >= p.total ? " 🎓" : "") + '</span>' +
+      '<span class="sub" role="status" aria-live="polite">' + p.done + " / " + p.total + " " + app.unitLabel + " 완료" +
+      (p.next ? " · 다음: " + p.next : "") + '</span>' +
+      '<span class="bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + app.nm + ' 진행률">' +
+        '<span style="width:' + pct + '%"></span></span></span>' +
+      '<span class="pct" aria-hidden="true">' + pct + "%</span>";
     row.addEventListener("click", () => gotoApp(app, null));
     list.appendChild(row);
     if (freeMode) {
@@ -865,6 +988,8 @@ function renderDash() {
       }
       const chips = document.createElement("div");
       chips.className = "unit-chips";
+      chips.setAttribute("role", "group");
+      chips.setAttribute("aria-label", app.nm + " — 학습 목록");
       (app.chips || app.order).forEach(item => {   // 단어카드는 낱말 106개 대신 분류(가~하) 칩
         const done = app.chips
           ? app.order.filter(w => w[0] === item).every(w => ((prog[w] || {}).stars || 0) >= 3)
@@ -900,6 +1025,7 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 window.addEventListener("pageshow", () => {
+  bootHide();   // 뒤로 가기(bfcache)로 돌아오면 오버레이 해제
   autoSync();
   if (curName && document.getElementById("scr-dash").classList.contains("active")) renderDash();
 });
@@ -913,11 +1039,11 @@ function inviteUrl() {
 }
 async function copyInvite() {
   const cls = hubClass();
-  if (!cls) { alert("먼저 교사 화면의 🏫 교실에서 교실을 만들거나 연결해 주세요."); return; }
+  if (!cls) { await appAlert("먼저 교사 화면의 🏫 교실에서 교실을 만들거나 연결해 주세요."); return; }
   const url = inviteUrl();
   let ok = false;
   try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {}
-  window.prompt((ok ? "복사됐어요! " : "아래 링크를 길게 눌러 복사하세요. ") +
+  await appPrompt((ok ? "복사됐어요! " : "아래 링크를 길게 눌러 복사하세요. ") +
     "카톡 등으로 학부모에게 보내 주세요.\n아이는 링크로 들어와 자기 이름만 누르면 되고, 기록은 교실로 자동 동기화됩니다.", url);
 }
 (async function () {
