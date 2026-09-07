@@ -105,6 +105,11 @@
   .car img { height: 100%; width: auto; object-fit: contain; }
   .car .w { font-size: clamp(18px, 2.6vw, 30px); font-weight: 800; white-space: nowrap; }
   .car .w b { color: var(--hl); }
+  /* 이전 낱말 = 회색(마지막 완성 칸만 노란색) — 가·나 기차 칸과 다 낱말판 카드 공통 */
+  .car.old { background: #F1F3F5; border-color: #CFD8DC; animation: none; }
+  .car.old .w { color: #90A4AE; }
+  .car.old .w b { color: #90A4AE; }
+  .car.old img { filter: grayscale(1); opacity: .55; }
   .car.now { background: var(--accent-soft); border-color: var(--accent-strong); border-style: dashed; }
   .car.now .w { color: var(--accent-strong); }
   @keyframes carIn { 0% { transform: translateX(-30px) scale(.7); opacity: 0; } 100% { transform: none; opacity: 1; } }
@@ -192,9 +197,7 @@
   #daWords { display: flex; gap: 6px; align-items: center; }
   #daWords .car { height: clamp(40px, 7vh, 62px); min-width: 0; }
   #daWords .car .w { font-size: clamp(15px, 2.2vw, 24px); }
-  #daWords .car.old { background: #F1F3F5; border-color: #CFD8DC; animation: none; }
-  #daWords .car.old .w { color: #90A4AE; }
-  #daWords .car.old img { filter: grayscale(1); opacity: .55; }
+
   #daScore { margin-left: auto; flex-shrink: 0; font-size: clamp(18px, 2.8vw, 30px); font-weight: 800; color: #F57F17;
     background: #FFF8E1; border: 3px solid #FFD54F; border-radius: 999px; padding: 4px 16px; }
   #daScore.pop { animation: pop .4s; }
@@ -389,7 +392,7 @@ const SETS = [
   { name: "우주 기차",   words: ["우주", "주스", "스티커", "커피", "피자"] },
   { name: "고구마 기차", words: ["고구마", "마술사", "사과", "과자", "자동차"] },
   { name: "카메라 기차", words: ["카메라", "라디오", "오이", "이모", "모자"] },
-  { name: "야채 기차",   words: ["야채", "채소", "소파", "파도", "도토리"] },
+  { name: "부채 기차",   words: ["부채", "채소", "소파", "파도", "도토리"] },   // 야채·채소는 같은 그림상징이라 부채로
   { name: "바다 기차",   words: ["바다", "다리미", "미소", "소고기", "기차"] },
   { name: "가수 기차",   words: ["가수", "수세미", "미로", "로봇"] },
   { name: "포도 기차",   words: ["포도", "도시", "시소", "소시지", "지우개"] },
@@ -766,6 +769,7 @@ function startNa(w) {
   cur.wi = 1; chooseNext(true);
 }
 function lastCh(w) { return w[w.length - 1]; }
+function samePic(a, b) { return !!EMBEDDED[a] && EMBEDDED[a] === EMBEDDED[b]; }   // 같은 그림상징(야채·채소, 고모·이모, 네모·사각형)
 /* 시작 낱말에서 NA_LEN까지 이어지는 경로를 미리 찾아 둔다(막다른 길 방지). 못 찾으면 가장 긴 경로 */
 function planChain(start) {
   let best = [start];
@@ -773,7 +777,8 @@ function planChain(start) {
     if (path.length > best.length) best = path.slice();
     if (path.length >= NA_LEN) return true;
     const used = new Set(path);
-    for (const w of shuffle((BY_FIRST[lastCh(path[path.length - 1])] || []).filter(x => !used.has(x)))) {
+    const last = path[path.length - 1];
+    for (const w of shuffle((BY_FIRST[lastCh(last)] || []).filter(x => !used.has(x) && !samePic(x, last)))) {
       path.push(w); if (dfs(path)) return true; path.pop();
     }
     return false;
@@ -785,10 +790,10 @@ function chooseNext(first) {
   const prev = cur.words[cur.words.length - 1], link = lastCh(prev);
   const used = new Set(cur.words);
   const planned = cur.plan && cur.plan[cur.words.length];
-  const cands = planned && !used.has(planned) ? [planned] : (BY_FIRST[link] || []).filter(w => !used.has(w));
+  const cands = planned && !used.has(planned) ? [planned] : (BY_FIRST[link] || []).filter(w => !used.has(w) && !samePic(w, prev));
   if (!cands.length || cur.words.length >= NA_LEN) { setDone(); return; }
   const answer = cands[0];
-  const others = shuffle(NA_WORDS.filter(w => w[0] !== link && !used.has(w) && w !== answer)).slice(0, 2);
+  const others = shuffle(NA_WORDS.filter(w => w[0] !== link && !used.has(w) && w !== answer && !samePic(w, answer))).slice(0, 2);
   cur.choosing = true; cur.answer = answer; cur.link = link; cur.wrong = 0; cur.lock = false;
   document.body.classList.add("choosing");
   renderTrack();
@@ -886,7 +891,7 @@ function renderTrack() {
   const loco = document.createElement("div"); loco.className = "loco"; loco.textContent = "🚂"; t.appendChild(loco);
   cur.words.forEach((w, i) => {
     if (i > cur.wi) return;
-    const c = document.createElement("div"); c.className = "car" + (i === cur.wi ? " now" : "");
+    const c = document.createElement("div"); c.className = "car" + (i === cur.wi ? " now" : i < cur.wi - 1 ? " old" : "");
     const label = i > 0 ? `<b>${w[0]}</b>${w.slice(1)}` : w;
     c.innerHTML = i < cur.wi ? `<img src="${EMBEDDED[w] || ""}" alt=""><div class="w">${label}</div>`
                              : `<div class="w">${i > 0 ? "<b>" + w[0] + "</b>" : ""}${"?".repeat(w.length - (i > 0 ? 1 : 0))}</div>`;
