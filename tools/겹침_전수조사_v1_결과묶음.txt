@@ -1,0 +1,159 @@
+   1x 낱말놀이 | board915 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(95x40)  shot=낱말놀이_board915_celebrate-pop.png
+   1x 낱말놀이 | board915 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(65x22)  shot=낱말놀이_board915_celebrate-pop.png
+   2x 낱말놀이 | board915 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(63x79), celebrate(63x79)  shot=낱말놀이_board915_celebrate-pop.png
+   1x 낱말놀이 | board915 | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x8)  shot=낱말놀이_board915_celebrate-pop.png
+   1x 낱말놀이 | board915 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x22)  shot=낱말놀이_board915_celebrate-pop.png
+ 105x 낱말놀이 | board915-big | overflow | span.lb  | button.brand.nav-tab | r  screens=home,learn,pic,read,read-worst,review,student,stickers,edit  e.g. home/body(23px), home/animal(23px), home/thing(23px)  shot=낱말놀이_board915-big_home_body.png
+   1x 낱말놀이 | board915-big | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(112x52)  shot=낱말놀이_board915-big_celebrate-pop.png
+   1x 낱말놀이 | board915-big | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(73x29)  shot=낱말놀이_board915-big_celebrate-pop.png
+   2x 낱말놀이 | board915-big | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(53x79), celebrate(53x79)  shot=낱말놀이_board915-big_celebrate-pop.png
+   1x 낱말놀이 | board915-big | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x14)  shot=낱말놀이_board915-big_celebrate-pop.png
+   1x 낱말놀이 | board915-big | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x29)  shot=낱말놀이_board915-big_celebrate-pop.png
+ 105x 낱말놀이 | board915-big | overlap | span.lb  | img [img] |   screens=home,learn,pic,read,read-worst,review,student,stickers,edit  e.g. home/body(9x29), home/animal(9x29), home/thing(9x29)  shot=낱말놀이_board915-big_home_body.png
+   6x 낱말놀이 | phone390 | overflow | div.big  | div.letter-card | r  screens=home  e.g. home/body(3px), home/animal(5px), home/thing(4px)  shot=낱말놀이_phone390_home_body.png
+ 315x 낱말놀이 | phone390 | overlap | img [img] | span.ico  |   screens=home,learn,pic,read,read-worst,review,student,stickers,edit  e.g. home/body(13x24), home/body(18x24), home/body(23x24)  shot=낱말놀이_phone390_home_body.png
+   1x 낱말놀이 | phone390 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(62x58)  shot=낱말놀이_phone390_celebrate-pop.png
+   1x 낱말놀이 | phone390 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=낱말놀이_phone390_celebrate-pop.png
+   2x 낱말놀이 | phone390 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x150), celebrate(153x150)  shot=낱말놀이_phone390_celebrate-pop.png
+   1x 낱말놀이 | phone390 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=낱말놀이_phone390_celebrate-pop.png
+   1x 낱말놀이 | tab1280 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(183x51)  shot=낱말놀이_tab1280_celebrate-pop.png
+   1x 낱말놀이 | tab1280 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x26)  shot=낱말놀이_tab1280_celebrate-pop.png
+   2x 낱말놀이 | tab1280 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x144), celebrate(153x144)  shot=낱말놀이_tab1280_celebrate-pop.png
+   1x 낱말놀이 | tab1280 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x24)  shot=낱말놀이_tab1280_celebrate-pop.png
+   2x 낱말놀이 | tab1280 | scrolled | button  | div#editList |   screens=edit  e.g. edit(4px), edit(4px)  shot=낱말놀이_tab1280_edit.png
+   1x 낱말놀이 | tab1280 | scrolled | button.del  | div#editList |   screens=edit  e.g. edit(4px)  shot=낱말놀이_tab1280_edit.png
+   1x 낱말놀이 | tab1280 | scrolled | div.w  | div#editList |   screens=edit  e.g. edit(8px)  shot=낱말놀이_tab1280_edit.png
+   1x 낱말놀이 | tab1280 | scrolled | img [img] | div#editList |   screens=edit  e.g. edit(20px)  shot=낱말놀이_tab1280_edit.png
+   7x 낱말잇기 | board915 | overlap | div.ghost  | div.  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(49x57), ga-mid/고구마/4-자동차(49x57), ga-mid/가수/3-로봇(49x57)  shot=낱말잇기_board915_ga-mid_고구마_1-마술사.png
+   1x 낱말잇기 | board915 | scrolled | button#btnCloseSettings.big  | div.sheet |   screens=settings  e.g. settings(24px)  shot=낱말잇기_board915_settings.png
+   1x 낱말잇기 | board915 | scrolled | div#verText2.ver  | div.sheet |   screens=settings  e.g. settings(67px)  shot=낱말잇기_board915_settings.png
+   7x 낱말잇기 | board915-big | overlap | div.ghost  | div.  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(64x74), ga-mid/고구마/4-자동차(64x74), ga-mid/가수/3-로봇(64x74)  shot=낱말잇기_board915-big_ga-mid_고구마_1-마술사.png
+   6x 낱말잇기 | board915-big | overlap | div.name  | button.opt  |   screens=home  e.g. home/ga/1(115x20), home/ga/1(112x20), home/ga/1(45x21)  shot=낱말잇기_board915-big_home_ga_1.png
+   1x 낱말잇기 | board915-big | scrolled | button#btnCloseSettings.big  | div.sheet |   screens=settings  e.g. settings(33px)  shot=낱말잇기_board915-big_settings.png
+   3x 낱말잇기 | board915-big | scrolled | div.name  | div#setGrid |   screens=home  e.g. home/ga/1(1px), home/ga/1(1px), home/ga/1(7px)  shot=낱말잇기_board915-big_home_ga_1.png
+   1x 낱말잇기 | board915-big | scrolled | div#verText2.ver  | div.sheet |   screens=settings  e.g. settings(76px)  shot=낱말잇기_board915-big_settings.png
+   4x 낱말잇기 | phone390 | offscreen | b  |  | y  screens=na  e.g. na/가수(16px), na/다리미(16px), na/드레스(16px)  shot=낱말잇기_phone390_na_가수.png
+  13x 낱말잇기 | phone390 | offscreen | div.w  |  | y  screens=na,na-long  e.g. na/가수(16px), na/고구마(16px), na/나무(16px)  shot=낱말잇기_phone390_na_가수.png
+   1x 낱말잇기 | phone390 | overlap | b  | div#linkBig  |   screens=na-long  e.g. na-long/가수(17x11)  shot=낱말잇기_phone390_na-long_가수.png
+   7x 낱말잇기 | phone390 | overlap | div.  | div#trayLabel.jong  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(61x17), ga-mid/고구마/4-자동차(61x17), ga-mid/가수/3-로봇(51x17)  shot=낱말잇기_phone390_ga-mid_고구마_1-마술사.png
+  95x 낱말잇기 | phone390 | overlap | div.  | div#trayLabel.jung  |   screens=ga-mid  e.g. ga-mid/우주/0-우주(17x17), ga-mid/우주/1-주스(17x17), ga-mid/우주/1-주스(64x17)  shot=낱말잇기_phone390_ga-mid_우주_0-우주.png
+  83x 낱말잇기 | phone390 | overlap | div.  | span  |   screens=ga-mid,ga  e.g. ga-mid/우주/0-우주(28x17), ga/우주/1-주스(28x17), ga-mid/우주/1-주스(28x17)  shot=낱말잇기_phone390_ga-mid_우주_0-우주.png
+   1x 낱말잇기 | phone390 | overlap | div.face  | button.opt  |   screens=home  e.g. home/na(104x14)  shot=낱말잇기_phone390_home_na.png
+   1x 낱말잇기 | phone390 | overlap | div.face  | button.opt.na-only  |   screens=home  e.g. home/na(58x14)  shot=낱말잇기_phone390_home_na.png
+   7x 낱말잇기 | phone390 | overlap | div.ghost  | div.  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(64x74), ga-mid/고구마/4-자동차(64x74), ga-mid/가수/3-로봇(64x74)  shot=낱말잇기_phone390_ga-mid_고구마_1-마술사.png
+  74x 낱말잇기 | phone390 | overlap | div.ghost  | div#trayLabel.cho  |   screens=ga  e.g. ga/우주/0-우주(51x17), ga/우주/1-주스(51x17), ga/우주/2-스티커(61x17)  shot=낱말잇기_phone390_ga_우주_0-우주.png
+   7x 낱말잇기 | phone390 | overlap | div.ghost  | div#trayLabel.jong  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(61x17), ga-mid/고구마/4-자동차(61x17), ga-mid/가수/3-로봇(51x17)  shot=낱말잇기_phone390_ga-mid_고구마_1-마술사.png
+  15x 낱말잇기 | phone390 | overlap | div.ghost  | div#trayLabel.jung  |   screens=ga-mid  e.g. ga-mid/우주/0-우주(64x17), ga-mid/고구마/0-고구마(64x17), ga-mid/카메라/0-카메라(64x17)  shot=낱말잇기_phone390_ga-mid_우주_0-우주.png
+  11x 낱말잇기 | phone390 | overlap | div.ghost  | span  |   screens=ga  e.g. ga/우주/0-우주(28x17), ga/부채/0-부채(28x17), ga/바다/0-바다(28x17)  shot=낱말잇기_phone390_ga_우주_0-우주.png
+  12x 낱말잇기 | phone390 | overlap | div.loco  | div#linkBig  |   screens=na  e.g. na/가수(25x37), na/고구마(25x37), na/나무(25x37)  shot=낱말잇기_phone390_na_가수.png
+   4x 낱말잇기 | phone390 | overlap | div.name  | button.opt  |   screens=home  e.g. home/ga/1(73x14), home/ga/1(73x14), home/ga/2(73x14)  shot=낱말잇기_phone390_home_ga_1.png
+   2x 낱말잇기 | phone390 | overlap | div.name  | button.opt.na-only  |   screens=home  e.g. home/na(39x14), home/na(50x12)  shot=낱말잇기_phone390_home_na.png
+   1x 낱말잇기 | phone390 | overlap | div.w  | div#linkBig  |   screens=na-long  e.g. na-long/가수(15x11)  shot=낱말잇기_phone390_na-long_가수.png
+   5x 낱말잇기 | phone390 | overlap | img [img] | button.opt  |   screens=home  e.g. home/ga/1(86x14), home/ga/1(101x14), home/ga/2(86x14)  shot=낱말잇기_phone390_home_ga_1.png
+   1x 낱말잇기 | phone390 | overlap | img [img] | button.opt.na-only  |   screens=home  e.g. home/na(58x14)  shot=낱말잇기_phone390_home_na.png
+  13x 낱말잇기 | phone390 | overlap | img [img] | div#linkBig  |   screens=na,na-long  e.g. na/가수(28x28), na/고구마(28x28), na/나무(28x28)  shot=낱말잇기_phone390_na_가수.png
+ 170x 낱말잇기 | phone390 | overlap | img [img] | span.ico  |   screens=home,ga,ga-mid,na,na-long,da,student  e.g. home/ga/1(18x24), home/ga/2(18x24), home/na(18x24)  shot=낱말잇기_phone390_home_ga_1.png
+ 170x 낱말잇기 | phone390 | overlap | img#brandIco [img] | button#navTeacher.nav-btn.teacher  |   screens=home,ga,ga-mid,na,na-long,da,student  e.g. home/ga/1(23x24), home/ga/2(23x24), home/na(23x24)  shot=낱말잇기_phone390_home_ga_1.png
+  29x 낱말잇기 | phone390 | scrolled | b  | div#track |   screens=ga,ga-mid,na-long  e.g. ga/우주/4-피자(35px), ga-mid/우주/4-피자(35px), ga/고구마/4-자동차(35px)  shot=낱말잇기_phone390_ga_우주_4-피자.png
+   5x 낱말잇기 | phone390 | scrolled | div.cnt  | div#setGrid |   screens=home  e.g. home/ga/1(185px), home/ga/1(185px), home/ga/1(385px)  shot=낱말잇기_phone390_home_ga_1.png
+   1x 낱말잇기 | phone390 | scrolled | div.face  | div#setGrid |   screens=home  e.g. home/ga/1(336px)  shot=낱말잇기_phone390_home_ga_1.png
+  89x 낱말잇기 | phone390 | scrolled | div.loco  | div#track |   screens=ga,ga-mid,na-long  e.g. ga/우주/2-스티커(40px), ga-mid/우주/2-스티커(40px), ga/우주/3-커피(183px)  shot=낱말잇기_phone390_ga_우주_2-스티커.png
+   5x 낱말잇기 | phone390 | scrolled | div.name  | div#setGrid |   screens=home  e.g. home/ga/1(170px), home/ga/1(170px), home/ga/1(370px)  shot=낱말잇기_phone390_home_ga_1.png
+  88x 낱말잇기 | phone390 | scrolled | div.w  | div#track |   screens=ga,ga-mid,na-long  e.g. ga/우주/3-커피(36px), ga-mid/우주/3-커피(36px), ga/우주/4-피자(161px)  shot=낱말잇기_phone390_ga_우주_3-커피.png
+   4x 낱말잇기 | phone390 | scrolled | img [img] | div#setGrid |   screens=home  e.g. home/ga/1(140px), home/ga/1(140px), home/ga/1(340px)  shot=낱말잇기_phone390_home_ga_1.png
+  88x 낱말잇기 | phone390 | scrolled | img [img] | div#track |   screens=ga,ga-mid,na-long  e.g. ga/우주/3-커피(96px), ga-mid/우주/3-커피(96px), ga/우주/4-피자(221px)  shot=낱말잇기_phone390_ga_우주_3-커피.png
+   7x 낱말잇기 | tab1280 | overlap | div.ghost  | div.  |   screens=ga-mid  e.g. ga-mid/고구마/1-마술사(80x92), ga-mid/고구마/4-자동차(80x92), ga-mid/가수/3-로봇(80x92)  shot=낱말잇기_tab1280_ga-mid_고구마_1-마술사.png
+   1x 단어카드 | board915 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(95x40)  shot=단어카드_board915_celebrate-pop.png
+   1x 단어카드 | board915 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(65x22)  shot=단어카드_board915_celebrate-pop.png
+   2x 단어카드 | board915 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(63x79), celebrate(63x79)  shot=단어카드_board915_celebrate-pop.png
+   1x 단어카드 | board915 | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x8)  shot=단어카드_board915_celebrate-pop.png
+   1x 단어카드 | board915 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x22)  shot=단어카드_board915_celebrate-pop.png
+   1x 단어카드 | board915-big | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(112x52)  shot=단어카드_board915-big_celebrate-pop.png
+   1x 단어카드 | board915-big | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(73x29)  shot=단어카드_board915-big_celebrate-pop.png
+   2x 단어카드 | board915-big | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(53x79), celebrate(53x79)  shot=단어카드_board915-big_celebrate-pop.png
+   1x 단어카드 | board915-big | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x14)  shot=단어카드_board915-big_celebrate-pop.png
+   1x 단어카드 | board915-big | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x29)  shot=단어카드_board915-big_celebrate-pop.png
+ 106x 단어카드 | phone390 | offscreen | canvas#clCanvas |  | x  screens=color  e.g. color/가구(24px), color/가수(24px), color/가오리(24px)  shot=단어카드_phone390_color_가구.png
+   2x 단어카드 | phone390 | offscreen | span.s0  |  | x  screens=learn  e.g. learn/다이아몬드(72px), learn/아이스크림(67px)  shot=단어카드_phone390_learn_다이아몬드.png
+   2x 단어카드 | phone390 | overflow | div.big  | div.letter-card | lr  screens=home  e.g. home/다(10px), home/아(10px)  shot=단어카드_phone390_home_다.png
+ 672x 단어카드 | phone390 | overlap | img [img] | span.ico  |   screens=home,learn,puzzle,color,review,student,stickers,edit  e.g. home/가(18x24), home/가(23x24), home/나(18x24)  shot=단어카드_phone390_home_가.png
+   1x 단어카드 | phone390 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(62x58)  shot=단어카드_phone390_celebrate-pop.png
+   1x 단어카드 | phone390 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=단어카드_phone390_celebrate-pop.png
+   2x 단어카드 | phone390 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x150), celebrate(153x150)  shot=단어카드_phone390_celebrate-pop.png
+   1x 단어카드 | phone390 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=단어카드_phone390_celebrate-pop.png
+ 336x 단어카드 | phone390 | overlap | img#brandIco [img] | span.ico  |   screens=home,learn,puzzle,color,review,student,stickers,edit  e.g. home/가(13x24), home/나(13x24), home/다(13x24)  shot=단어카드_phone390_home_가.png
+   1x 단어카드 | tab1280 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(183x51)  shot=단어카드_tab1280_celebrate-pop.png
+   1x 단어카드 | tab1280 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x26)  shot=단어카드_tab1280_celebrate-pop.png
+   2x 단어카드 | tab1280 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x144), celebrate(153x144)  shot=단어카드_tab1280_celebrate-pop.png
+   1x 단어카드 | tab1280 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x24)  shot=단어카드_tab1280_celebrate-pop.png
+   4x 단어카드 | tab1280 | scrolled | button  | div#editList |   screens=edit  e.g. edit(5px), edit(5px), edit(85px)  shot=단어카드_tab1280_edit.png
+   2x 단어카드 | tab1280 | scrolled | button.del  | div#editList |   screens=edit  e.g. edit(5px), edit(85px)  shot=단어카드_tab1280_edit.png
+   2x 단어카드 | tab1280 | scrolled | div.w  | div#editList |   screens=edit  e.g. edit(9px), edit(89px)  shot=단어카드_tab1280_edit.png
+   2x 단어카드 | tab1280 | scrolled | img [img] | div#editList |   screens=edit  e.g. edit(21px), edit(101px)  shot=단어카드_tab1280_edit.png
+  50x 받침놀이 | board915 | overflow | div.cletter  | div.choice-card | lr  screens=yn,pair  e.g. yn/장미꽃(15px), yn/장미꽃(15px), pair/장미꽃(15px)  shot=받침놀이_board915_yn_장미꽃.png
+   1x 받침놀이 | board915 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(165x40)  shot=받침놀이_board915_celebrate-pop.png
+   1x 받침놀이 | board915 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(77x22)  shot=받침놀이_board915_celebrate-pop.png
+   2x 받침놀이 | board915 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(63x79), celebrate(63x79)  shot=받침놀이_board915_celebrate-pop.png
+   1x 받침놀이 | board915 | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x8)  shot=받침놀이_board915_celebrate-pop.png
+   1x 받침놀이 | board915 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x22)  shot=받침놀이_board915_celebrate-pop.png
+  25x 받침놀이 | board915-big | overflow | div.big  | div.letter-card | t  screens=home  e.g. home/h(12px), home/h(12px), home/h(12px)  shot=받침놀이_board915-big_home_h.png
+ 290x 받침놀이 | board915-big | overflow | div.cletter  | div.choice-card | lr  screens=yn,pair  e.g. yn/그릇(4px), yn/그릇(4px), pair/그릇(4px)  shot=받침놀이_board915-big_yn_그릇.png
+  30x 받침놀이 | board915-big | overlap | div.cletter  | div.cletter  |   screens=yn,pair  e.g. yn/장미꽃(51x106), pair/장미꽃(51x106), pair/장미꽃(51x106)  shot=받침놀이_board915-big_yn_장미꽃.png
+   1x 받침놀이 | board915-big | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(152x104)  shot=받침놀이_board915-big_celebrate-pop.png
+   1x 받침놀이 | board915-big | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(88x29)  shot=받침놀이_board915-big_celebrate-pop.png
+   2x 받침놀이 | board915-big | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(53x79), celebrate(53x79)  shot=받침놀이_board915-big_celebrate-pop.png
+   1x 받침놀이 | board915-big | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x40)  shot=받침놀이_board915-big_celebrate-pop.png
+   1x 받침놀이 | board915-big | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x29)  shot=받침놀이_board915-big_celebrate-pop.png
+  25x 받침놀이 | phone390 | offscreen | canvas#wrCanvas |  | x  screens=write  e.g. write/ㅁ(16px), write/ㅇ(16px), write/ㄴ(16px)  shot=받침놀이_phone390_write_ㅁ.png
+ 116x 받침놀이 | phone390 | offscreen | div.cletter  |  | x  screens=pair  e.g. pair/그릇(8px), pair/그릇(8px), pair/찾다(12px)  shot=받침놀이_phone390_pair_그릇.png
+ 110x 받침놀이 | phone390 | offscreen | img.qimg [img] |  | x  screens=fill  e.g. fill/곰(12px), fill/감(13px), fill/몸(12px)  shot=받침놀이_phone390_fill_곰.png
+ 110x 받침놀이 | phone390 | offscreen | span.ask  |  | x  screens=fill  e.g. fill/곰(12px), fill/감(13px), fill/몸(12px)  shot=받침놀이_phone390_fill_곰.png
+  58x 받침놀이 | phone390 | offscreen | span.target  |  | x  screens=fill  e.g. fill/그릇(24px), fill/찾다(33px), fill/꽂다(32px)  shot=받침놀이_phone390_fill_그릇.png
+  25x 받침놀이 | phone390 | overflow | div.big  | div.letter-card | t  screens=home  e.g. home/h(17px), home/h(17px), home/h(17px)  shot=받침놀이_phone390_home_h.png
+ 290x 받침놀이 | phone390 | overflow | div.cletter  | div.choice-card | lrtb  screens=yn,pair  e.g. yn/그릇(31px), yn/그릇(31px), pair/그릇(31px)
+ 590x 받침놀이 | phone390 | overflow | div.cletter  | div.choice-card | tb  screens=yn,pair,fill  e.g. yn/곰(10px), yn/곰(10px), pair/곰(10px)  shot=받침놀이_phone390_yn_곰.png
+ 178x 받침놀이 | phone390 | overlap | div.cletter  | div.cletter  |   screens=yn,pair  e.g. yn/그릇(50x139), pair/그릇(50x139), pair/그릇(50x139)  shot=받침놀이_phone390_yn_그릇.png
+1046x 받침놀이 | phone390 | overlap | img [img] | span.ico  |   screens=home,learn,learn-bank,yn,pair,fill,review,write,student,stickers,edit  e.g. home/h(13x24), home/h(23x24), home/s(13x24)  shot=받침놀이_phone390_home_h.png
+   1x 받침놀이 | phone390 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(93x83)  shot=받침놀이_phone390_celebrate-pop.png
+   1x 받침놀이 | phone390 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(112x18)  shot=받침놀이_phone390_celebrate-pop.png
+   2x 받침놀이 | phone390 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x150), celebrate(153x150)  shot=받침놀이_phone390_celebrate-pop.png
+   1x 받침놀이 | phone390 | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(93x9)  shot=받침놀이_phone390_celebrate-pop.png
+   1x 받침놀이 | phone390 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(112x18)  shot=받침놀이_phone390_celebrate-pop.png
+ 523x 받침놀이 | phone390 | overlap | img#brandIco [img] | span.ico  |   screens=home,learn,learn-bank,yn,pair,fill,review,write,student,stickers,edit  e.g. home/h(18x24), home/s(18x24), home/g(18x24)  shot=받침놀이_phone390_home_h.png
+  50x 받침놀이 | tab1280 | overflow | div.cletter  | div.choice-card | lr  screens=yn,pair  e.g. yn/장미꽃(33px), yn/장미꽃(33px), pair/장미꽃(33px)  shot=받침놀이_tab1280_yn_장미꽃.png
+  30x 받침놀이 | tab1280 | overlap | div.cletter  | div.cletter  |   screens=yn,pair  e.g. yn/장미꽃(35x133), pair/장미꽃(35x133), pair/장미꽃(35x133)  shot=받침놀이_tab1280_yn_장미꽃.png
+   1x 받침놀이 | tab1280 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(261x51)  shot=받침놀이_tab1280_celebrate-pop.png
+   1x 받침놀이 | tab1280 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(156x26)  shot=받침놀이_tab1280_celebrate-pop.png
+   2x 받침놀이 | tab1280 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x144), celebrate(153x144)  shot=받침놀이_tab1280_celebrate-pop.png
+   1x 받침놀이 | tab1280 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(162x24)  shot=받침놀이_tab1280_celebrate-pop.png
+   1x 자모놀이 | board915 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(131x40)  shot=자모놀이_board915_celebrate-pop.png
+   1x 자모놀이 | board915 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(65x22)  shot=자모놀이_board915_celebrate-pop.png
+   2x 자모놀이 | board915 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(63x79), celebrate(63x79)  shot=자모놀이_board915_celebrate-pop.png
+   1x 자모놀이 | board915 | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x8)  shot=자모놀이_board915_celebrate-pop.png
+   1x 자모놀이 | board915 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x22)  shot=자모놀이_board915_celebrate-pop.png
+  40x 자모놀이 | board915-big | overflow | div.big  | div.letter-card | t  screens=home  e.g. home/v1(4px), home/v1(4px), home/v1(4px)  shot=자모놀이_board915-big_home_v1.png
+ 205x 자모놀이 | board915-big | overflow | span.lb  | button.brand.nav-tab | r  screens=home,learn,same,sound,build,write,review,student,stickers,edit  e.g. home/v1(17px), home/c1(17px), home/c2(17px)  shot=자모놀이_board915-big_home_v1.png
+   1x 자모놀이 | board915-big | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(159x52)  shot=자모놀이_board915-big_celebrate-pop.png
+   1x 자모놀이 | board915-big | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(73x29)  shot=자모놀이_board915-big_celebrate-pop.png
+   2x 자모놀이 | board915-big | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(53x79), celebrate(53x79)  shot=자모놀이_board915-big_celebrate-pop.png
+   1x 자모놀이 | board915-big | overlap | img.praise [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(113x14)  shot=자모놀이_board915-big_celebrate-pop.png
+   1x 자모놀이 | board915-big | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(113x29)  shot=자모놀이_board915-big_celebrate-pop.png
+  40x 자모놀이 | phone390 | offscreen | canvas#wrCanvas |  | x  screens=write  e.g. write/ㅏ(16px), write/ㅓ(16px), write/ㅗ(16px)  shot=자모놀이_phone390_write_ㅏ.png
+   1x 자모놀이 | phone390 | overflow | button.del  | div.edit-row | r  screens=edit  e.g. edit(8px)  shot=자모놀이_phone390_edit.png
+  40x 자모놀이 | phone390 | overflow | div.big  | div.letter-card | t  screens=home  e.g. home/v1(19px), home/v1(19px), home/v1(19px)  shot=자모놀이_phone390_home_v1.png
+ 352x 자모놀이 | phone390 | overflow | div.cletter  | div.choice-card | tb  screens=same,sound,build,review  e.g. same/ㅏ(10px), same/ㅏ(10px), same/ㅏ(10px)  shot=자모놀이_phone390_same_ㅏ.png
+ 615x 자모놀이 | phone390 | overlap | img [img] | span.ico  |   screens=home,learn,same,sound,build,write,review,student,stickers,edit  e.g. home/v1(13x24), home/v1(18x24), home/v1(23x24)  shot=자모놀이_phone390_home_v1.png
+   1x 자모놀이 | phone390 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(114x58)  shot=자모놀이_phone390_celebrate-pop.png
+   1x 자모놀이 | phone390 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=자모놀이_phone390_celebrate-pop.png
+   2x 자모놀이 | phone390 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x150), celebrate(153x150)  shot=자모놀이_phone390_celebrate-pop.png
+   1x 자모놀이 | phone390 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(93x18)  shot=자모놀이_phone390_celebrate-pop.png
+   1x 자모놀이 | tab1280 | overlap | img.cheer.drop [img] | div.msg  |   screens=celebrate-pop  e.g. celebrate-pop(229x51)  shot=자모놀이_tab1280_celebrate-pop.png
+   1x 자모놀이 | tab1280 | overlap | img.cheer.drop [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x26)  shot=자모놀이_tab1280_celebrate-pop.png
+   2x 자모놀이 | tab1280 | overlap | img.cheer.drop [img] | img.praise [img] |   screens=celebrate-pop,celebrate  e.g. celebrate-pop(153x144), celebrate(153x144)  shot=자모놀이_tab1280_celebrate-pop.png
+   1x 자모놀이 | tab1280 | overlap | img.praise [img] | div.sub  |   screens=celebrate-pop  e.g. celebrate-pop(139x24)  shot=자모놀이_tab1280_celebrate-pop.png
+ 242x 자모놀이 | tab1280 | scrolled | button  | div#editList |   screens=edit  e.g. edit(75px), edit(75px), edit(155px)  shot=자모놀이_tab1280_edit.png
+ 102x 자모놀이 | tab1280 | scrolled | button.del  | div#editList |   screens=edit  e.g. edit(75px), edit(155px), edit(284px)  shot=자모놀이_tab1280_edit.png
+  38x 자모놀이 | tab1280 | scrolled | div.jm  | div#editList |   screens=edit  e.g. edit(4px), edit(293px), edit(582px)  shot=자모놀이_tab1280_edit.png
+ 102x 자모놀이 | tab1280 | scrolled | div.w  | div#editList |   screens=edit  e.g. edit(79px), edit(159px), edit(288px)  shot=자모놀이_tab1280_edit.png
+ 103x 자모놀이 | tab1280 | scrolled | img [img] | div#editList |   screens=edit  e.g. edit(11px), edit(91px), edit(171px)  shot=자모놀이_tab1280_edit.png
+groups 158 errors []
